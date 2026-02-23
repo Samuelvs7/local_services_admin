@@ -1,0 +1,80 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- HELPER FUNCTIONS ---
+    
+    // Checks if the user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Fetches user record from Firestore
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Checks for specific roles
+    function hasRole(role) {
+      return isSignedIn() && getUserData().role == role;
+    }
+
+    function isAdmin() {
+      return hasRole('admin') || hasRole('super_admin');
+    }
+
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+
+    // Checks if the user is the owner of the document
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    // --- COLLECTION RULES ---
+
+    // 1. Users Collection
+    match /users/{userId} {
+      allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow create: if isSignedIn(); // Allow initial profile creation
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow delete: if isSuperAdmin();
+    }
+
+    // 2. Orders Collection
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin());
+      allow create: if isSignedIn(); 
+      allow update: if isAdmin(); // In production, add vendor check here
+      allow delete: if isSuperAdmin();
+    }
+
+    // 3. Stores Collection
+    match /stores/{storeId} {
+      allow read: if true; // Publicly readable
+      allow create: if isSignedIn(); // For vendor applications
+      allow update: if isAdmin(); 
+      allow delete: if isSuperAdmin();
+    }
+
+    // 4. Colleges Collection
+    match /colleges/{collegeId} {
+      allow read: if true; 
+      allow write: if isAdmin();
+    }
+
+    // 5. Service Configs (Highly Sensitive)
+    match /service_configs/{configId} {
+      allow read: if true; // Apps need to know settings
+      allow write: if isSuperAdmin(); // ONLY Super Admin can change commission rates
+    }
+
+    // 6. Admin Stats (Internal aggregation)
+    match /admin_stats/{docId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions should write here in production
+    }
+  }
+}

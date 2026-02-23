@@ -1,0 +1,21 @@
+﻿Analyzing app_chart.dart...                                     
+
+  error - The named parameter 'tooltipRoundedRadius' isn't defined - lib\core\widgets\app_chart.dart:312:13 - undefined_named_parameter
+  error - The named parameter 'tooltipRoundedRadius' isn't defined - lib\core\widgets\app_chart.dart:417:13 - undefined_named_parameter
+
+flutter : 2 issues found. 
+(ran in 1.0s)
+At line:1 char:1
++ flutter analyze lib/core/w
+idgets/app_chart.dart 2>&1 
+| Out-File -File ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          
+    : NotSpecified: (2 iss  
+  ues found. (ran in 1.0s   
+ ):String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId 
+    : NativeCommandError
+ 
