@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:local_services_admin/features/users/data/models/user_model.dart';
 import 'package:local_services_admin/features/users/data/repositories/user_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class UsersPage extends ConsumerStatefulWidget {
   const UsersPage({super.key});
@@ -17,11 +19,10 @@ class _UsersPageState extends ConsumerState<UsersPage> {
 
   void _toggleBlock(String userId, bool isCurrentlyBlocked) {
     ref.read(userRepositoryProvider).toggleUserBlock(userId, !isCurrentlyBlocked);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('User ${!isCurrentlyBlocked ? 'Blocked' : 'Unblocked'} successfully'),
-        backgroundColor: !isCurrentlyBlocked ? Colors.red : Colors.green,
-      ),
+    AppToastManager.instance.show(
+      title: 'User Updated',
+      description: 'Account has been ${!isCurrentlyBlocked ? 'blocked' : 'unblocked'} successfully.',
+      variant: !isCurrentlyBlocked ? AppToastVariant.destructive : AppToastVariant.defaultVariant,
     );
   }
 
@@ -85,9 +86,9 @@ class _UsersPageState extends ConsumerState<UsersPage> {
             // 2. Filter Bar & Table
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20)],
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20)],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -100,7 +101,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                         Container(
                           width: 280,
                           height: 40,
-                          decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
                           child: TextField(
                             onChanged: (v) => setState(() => _searchQuery = v),
                             decoration: const InputDecoration(
@@ -125,7 +126,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                     columnSpacing: 24,
                     headingRowHeight: 50,
                     dataRowMaxHeight: 70,
-                    headingRowColor: WidgetStateProperty.all(const Color(0xFFF9F9FA)),
+                    headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withValues(alpha: 0.05)),
                     columns: const [
                       DataColumn(label: _ColHeader('USER')),
                       DataColumn(label: _ColHeader('PHONE')),
@@ -156,7 +157,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
                             icon: Icon(u.isBlocked ? Icons.check_circle_outline_rounded : Icons.block_flipped, size: 14),
                             label: Text(u.isBlocked ? 'UNBLOCK' : 'BLOCK', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: u.isBlocked ? Colors.green.withOpacity(0.1) : Colors.red.withOpacity(0.1),
+                              backgroundColor: u.isBlocked ? Colors.green.withValues(alpha: 0.1) : Colors.red.withValues(alpha: 0.1),
                               foregroundColor: u.isBlocked ? Colors.green : Colors.red,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -188,15 +189,15 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -216,7 +217,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
   Widget _buildFilterDropdown(String value, List<String> items, Function(String?) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
@@ -232,7 +233,7 @@ class _UsersPageState extends ConsumerState<UsersPage> {
     final color = isBlocked ? Colors.red : Colors.green;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -319,7 +320,7 @@ class _UserDetailDialog extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                   child: Text(user.name.substring(0, 1).toUpperCase(), style: TextStyle(color: Theme.of(context).colorScheme.primary, fontSize: 24, fontWeight: FontWeight.bold)),
                 ),
                 const SizedBox(width: 16),
@@ -335,7 +336,7 @@ class _UserDetailDialog extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 32),
-            _buildStatGrid(),
+            _buildStatGrid(context),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -358,12 +359,12 @@ class _UserDetailDialog extends StatelessWidget {
     final color = user.isBlocked ? Colors.red : Colors.green;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Text(user.isBlocked ? 'Blocked' : 'Active', style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold)),
     );
   }
 
-  Widget _buildStatGrid() {
+  Widget _buildStatGrid(BuildContext context) {
     final stats = [
       ['Phone', user.phone ?? 'N/A'],
       ['College', user.collegeName ?? 'N/A'],
@@ -379,7 +380,7 @@ class _UserDetailDialog extends StatelessWidget {
       children: stats.map((s) => Container(
         width: 218,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

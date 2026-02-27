@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import '../../data/models/session_model.dart';
 import '../providers/session_provider.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class AddEditSessionDialog extends ConsumerStatefulWidget {
   final String collegeId;
@@ -63,8 +65,10 @@ class _AddEditSessionDialogState extends ConsumerState<AddEditSessionDialog> {
     if (!_formKey.currentState!.validate()) return;
 
     if (_endDate.isBefore(_startDate)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('End date must be after start date')),
+      AppToastManager.instance.show(
+        title: 'Invalid Dates',
+        description: 'End date must be after start date.',
+        variant: AppToastVariant.destructive,
       );
       return;
     }
@@ -86,13 +90,19 @@ class _AddEditSessionDialogState extends ConsumerState<AddEditSessionDialog> {
     try {
       if (widget.session == null) {
         await ref.read(sessionActionProvider.notifier).addSession(widget.collegeId, newSession);
+        AppToastManager.instance.show(title: 'Session Created', description: '${newSession.name} has been added.');
       } else {
         await ref.read(sessionActionProvider.notifier).updateSession(widget.collegeId, newSession);
+        AppToastManager.instance.show(title: 'Session Updated', description: 'Changes saved for ${newSession.name}.');
       }
       if (mounted) Navigator.pop(context);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+        AppToastManager.instance.show(
+          title: 'Error',
+          description: e.toString(),
+          variant: AppToastVariant.destructive,
+        );
       }
     }
   }

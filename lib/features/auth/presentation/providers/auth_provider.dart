@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../admins/data/models/admin_user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 
 // State definitions
@@ -69,4 +71,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final authRepository = ref.watch(authRepositoryProvider);
   return AuthNotifier(authRepository);
+});
+
+final currentAdminProvider = StreamProvider<AdminUser?>((ref) {
+  final authState = ref.watch(authProvider);
+  if (authState is AuthSuccess) {
+    final firestore = FirebaseFirestore.instance;
+    return firestore
+        .collection('admins')
+        .doc(authState.user.uid)
+        .snapshots()
+        .map((doc) => doc.exists ? AdminUser.fromFirestore(doc) : null);
+  }
+  return Stream.value(null);
 });

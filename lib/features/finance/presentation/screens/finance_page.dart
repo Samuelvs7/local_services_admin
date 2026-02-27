@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:local_services_admin/features/finance/data/models/payment_log_model.dart';
 import 'package:local_services_admin/features/finance/data/repositories/finance_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
 
 class FinancePage extends ConsumerStatefulWidget {
   const FinancePage({super.key});
@@ -18,8 +19,9 @@ class _FinancePageState extends ConsumerState<FinancePage> {
 
   void _markPaid(String id) {
     ref.read(financeRepositoryProvider).markAsPaid(id);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Payout marked as paid successfully'), backgroundColor: Colors.green),
+    AppToastManager.instance.show(
+      title: 'Payout Successful',
+      description: 'Vendor payment has been marked as completed.',
     );
   }
 
@@ -65,8 +67,9 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     ),
                     OutlinedButton.icon(
                       onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Exporting CSV report...')),
+                         AppToastManager.instance.show(
+                          title: 'Export Started',
+                          description: 'Your CSV report is being generated.',
                         );
                       },
                       icon: const Icon(Icons.download_rounded, size: 18),
@@ -102,7 +105,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                     color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4)),
                     ],
                   ),
                   child: Column(
@@ -122,7 +125,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                         columnSpacing: 24,
                         headingRowHeight: 50,
                         dataRowMaxHeight: 65,
-                        headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withOpacity(0.05)),
+                        headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withValues(alpha: 0.05)),
                         columns: const [
                           DataColumn(label: _ColHeader('ORDER ID')),
                           DataColumn(label: _ColHeader('VENDOR')),
@@ -147,7 +150,7 @@ class _FinancePageState extends ConsumerState<FinancePage> {
                               ? TextButton(
                                   onPressed: () => _markPaid(l.id),
                                   style: TextButton.styleFrom(
-                                    backgroundColor: Colors.green.withOpacity(0.1),
+                                    backgroundColor: Colors.green.withValues(alpha: 0.1),
                                     foregroundColor: Colors.green,
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                                     minimumSize: Size.zero,
@@ -182,14 +185,14 @@ class _FinancePageState extends ConsumerState<FinancePage> {
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -237,7 +240,7 @@ class _StatusBadge extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

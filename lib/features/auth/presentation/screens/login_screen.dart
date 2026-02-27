@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../../../dashboard/presentation/screens/dashboard_screen.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class AdminLoginScreen extends ConsumerStatefulWidget {
   const AdminLoginScreen({super.key});
@@ -33,11 +35,10 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
     // Listen to auth state changes
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next is AuthError) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(next.message),
-            backgroundColor: Colors.red,
-          ),
+        AppToastManager.instance.show(
+          title: 'Authentication Failed',
+          description: next.message,
+          variant: AppToastVariant.destructive,
         );
       } else if (next is AuthSuccess) {
         Navigator.of(context).pushReplacement(
@@ -59,7 +60,7 @@ class _AdminLoginScreenState extends ConsumerState<AdminLoginScreen> {
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color: Colors.black.withValues(alpha: 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),

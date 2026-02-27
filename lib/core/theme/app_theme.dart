@@ -39,7 +39,6 @@ class AppTheme {
         surface: AppColors.darkSurface,
         onSurface: AppColors.darkForeground,
         onPrimary: Colors.white,
-        background: AppColors.darkBackground,
       ),
       scaffoldBackgroundColor: AppColors.darkBackground,
       dividerTheme: const DividerThemeData(color: AppColors.darkBorder),

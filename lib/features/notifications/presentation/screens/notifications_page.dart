@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:local_services_admin/features/notifications/data/models/notification_model.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
 
 
 class NotificationsPage extends StatefulWidget {
@@ -32,7 +33,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         title: 'New Feature: Flash Deals',
         body: 'Flash deals are now live! Check out the new section in the app.',
         type: NotificationType.promo,
-        sentBy: 'Admin (Suresh)',
+        sentBy: 'Admin',
         createdAt: DateTime.now().subtract(const Duration(hours: 5)),
         sentCount: 97500,
         targetName: 'All Users',
@@ -59,7 +60,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
@@ -74,7 +75,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   children: [
                     const Text(
                       'Notifications',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E)),
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -133,17 +134,17 @@ class _NotificationsPageState extends State<NotificationsPage> {
       width: width < 250 ? 250 : width,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -152,7 +153,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             children: [
               Text(title, style: TextStyle(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500)),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E))),
+              Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
             ],
           ),
         ],
@@ -193,10 +194,10 @@ class _NotificationCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 15, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 15, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -205,7 +206,7 @@ class _NotificationCard extends StatelessWidget {
           Container(
             width: 44,
             height: 44,
-            decoration: BoxDecoration(color: typeColor.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+            decoration: BoxDecoration(color: typeColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
             child: Icon(Icons.notifications_rounded, color: typeColor, size: 22),
           ),
           const SizedBox(width: 16),
@@ -255,7 +256,7 @@ class _InfoItem extends StatelessWidget {
           style: const TextStyle(fontSize: 11, color: Colors.grey),
           children: [
             TextSpan(text: '$label: '),
-            TextSpan(text: value, style: const TextStyle(color: Color(0xFF1E1E2D), fontWeight: FontWeight.bold)),
+            TextSpan(text: value, style: TextStyle(color: Theme.of(context).textTheme.bodyLarge?.color, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -278,7 +279,7 @@ class _TypeBadge extends StatelessWidget {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withOpacity(0.2))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20), border: Border.all(color: color.withValues(alpha: 0.2))),
       child: Text(type.name.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
@@ -322,12 +323,12 @@ class __ComposeNotificationDialogState extends State<_ComposeNotificationDialog>
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(8)),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
                               value: _targetType,
                               isExpanded: true,
-                              style: const TextStyle(fontSize: 13, color: Colors.black),
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color),
                               onChanged: (v) => setState(() => _targetType = v!),
                               items: const [
                                 DropdownMenuItem(value: 'all', child: Text('All Users')),
@@ -349,12 +350,12 @@ class __ComposeNotificationDialogState extends State<_ComposeNotificationDialog>
                         const SizedBox(height: 6),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(8)),
+                          decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(8)),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<NotificationType>(
                               value: _type,
                               isExpanded: true,
-                              style: const TextStyle(fontSize: 13, color: Colors.black),
+                              style: TextStyle(fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color),
                               onChanged: (v) => setState(() => _type = v!),
                               items: NotificationType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.name.toUpperCase()))).toList(),
                             ),
@@ -379,11 +380,15 @@ class __ComposeNotificationDialogState extends State<_ComposeNotificationDialog>
                 title: _titleController.text,
                 body: _bodyController.text,
                 type: _type,
-                sentBy: 'Admin (Suresh)',
+                sentBy: 'Super Admin',
                 createdAt: DateTime.now(),
                 sentCount: _targetType == 'all' ? 97500 : 12000,
                 targetName: _targetType == 'all' ? 'All Users' : 'Target Selection',
               ));
+              AppToastManager.instance.show(
+                title: 'Notification Sent',
+                description: 'Broadcast has been queued for delivery.',
+              );
               Navigator.pop(context);
             }
           },
@@ -414,9 +419,9 @@ class __ComposeNotificationDialogState extends State<_ComposeNotificationDialog>
               hintText: hint,
               hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              fillColor: const Color(0xFFF3F4F6),
+              fillColor: Theme.of(context).inputDecorationTheme.fillColor,
               filled: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
             ),
             validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
           ),

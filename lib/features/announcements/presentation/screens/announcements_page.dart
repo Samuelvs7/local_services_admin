@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:local_services_admin/features/announcements/data/models/announcement_model.dart';
 import 'package:local_services_admin/features/announcements/data/repositories/announcement_repository.dart';
 import 'package:local_services_admin/features/colleges/data/repositories/college_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class AnnouncementsPage extends ConsumerStatefulWidget {
   const AnnouncementsPage({super.key});
@@ -122,9 +124,9 @@ class _AnnouncementsPageState extends ConsumerState<AnnouncementsPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: typeColor.withOpacity(0.1)),
+        border: Border.all(color: typeColor.withValues(alpha: 0.1)),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 4)),
         ],
       ),
       child: Row(
@@ -133,7 +135,7 @@ class _AnnouncementsPageState extends ConsumerState<AnnouncementsPage> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: typeColor.withOpacity(0.1),
+              color: typeColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(typeIcon, color: typeColor, size: 24),
@@ -163,7 +165,13 @@ class _AnnouncementsPageState extends ConsumerState<AnnouncementsPage> {
                     ),
                     Switch(
                       value: a.isActive,
-                      onChanged: (v) => ref.read(announcementRepositoryProvider).toggleActive(a.id, v),
+                       onChanged: (v) {
+                        ref.read(announcementRepositoryProvider).toggleActive(a.id, v);
+                        AppToastManager.instance.show(
+                          title: 'Broadcast Updated',
+                          description: 'Message is now ${v ? 'active' : 'inactive'}.',
+                        );
+                      },
                       activeColor: Theme.of(context).colorScheme.primary,
                     ),
                   ],
@@ -207,6 +215,11 @@ class _AnnouncementsPageState extends ConsumerState<AnnouncementsPage> {
           ElevatedButton(
             onPressed: () {
               ref.read(announcementRepositoryProvider).deleteAnnouncement(id);
+              AppToastManager.instance.show(
+                title: 'Broadcast Deleted',
+                description: 'The message has been removed from all apps.',
+                variant: AppToastVariant.destructive,
+              );
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -299,6 +312,10 @@ class _AddAnnouncementDialogState extends ConsumerState<_AddAnnouncementDialog> 
             );
 
             ref.read(announcementRepositoryProvider).addAnnouncement(a);
+            AppToastManager.instance.show(
+              title: 'Broadcast Live',
+              description: 'Users will receive the alert shortly.',
+            );
             Navigator.pop(context);
           },
           child: const Text('Broadcast Now'),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_services_admin/features/services/data/models/service_config_model.dart';
 import 'package:local_services_admin/features/services/data/repositories/service_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
 
 class ServicesPage extends ConsumerStatefulWidget {
   const ServicesPage({super.key});
@@ -21,6 +22,10 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
       newConfig = config.copyWith(parcel: config.parcel.copyWith(enabled: value));
     }
     ref.read(serviceRepositoryProvider).updateConfig(newConfig);
+    AppToastManager.instance.show(
+      title: 'Service Updated',
+      description: '${type.toUpperCase()} is now ${value ? 'enabled' : 'disabled'} for ${config.collegeName}.',
+    );
   }
 
   void _updateCommission(CollegeServiceConfig config, String type, String value) {
@@ -101,15 +106,15 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20)],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -130,9 +135,9 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +164,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1)),
+        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -196,10 +201,10 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
               decoration: InputDecoration(
                 hintText: '0',
                 contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                fillColor: settings.enabled ? Colors.white : Colors.grey[200],
+                fillColor: settings.enabled ? Theme.of(context).inputDecorationTheme.fillColor : Theme.of(context).disabledColor.withValues(alpha: 0.05),
                 filled: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.black.withOpacity(0.1))),
-                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.black.withOpacity(0.1))),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
               ),
               style: const TextStyle(fontSize: 13),
               controller: TextEditingController(text: settings.commission.toStringAsFixed(0))..selection = TextSelection.fromPosition(TextPosition(offset: settings.commission.toStringAsFixed(0).length)),

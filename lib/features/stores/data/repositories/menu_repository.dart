@@ -26,7 +26,20 @@ class MenuRepository {
     });
   }
 
-  /// Delete a product (Soft delete or hard delete based on requirements)
+  /// Add a new product
+  Future<void> addProduct(ProductModel product) async {
+    await _firestore.collection('products').add(product.toMap());
+  }
+
+  /// Update an existing product
+  Future<void> updateProduct(ProductModel product) async {
+    await _firestore.collection('products').doc(product.id).update({
+      ...product.toMap(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  /// Delete a product
   Future<void> deleteProduct(String productId) async {
     await _firestore.collection('products').doc(productId).delete();
   }

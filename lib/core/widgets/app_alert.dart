@@ -30,12 +30,12 @@ class AppAlert extends StatelessWidget {
     Color backgroundColor;
 
     if (variant == AppAlertVariant.destructive) {
-      borderColor = theme.colorScheme.error.withOpacity(isDark ? 0.5 : 0.3);
+      borderColor = theme.colorScheme.error.withValues(alpha: isDark ? 0.5 : 0.3);
       textColor = theme.colorScheme.error;
       iconColor = theme.colorScheme.error;
-      backgroundColor = isDark ? theme.colorScheme.error.withOpacity(0.05) : theme.colorScheme.error.withOpacity(0.02);
+      backgroundColor = isDark ? theme.colorScheme.error.withValues(alpha: 0.05) : theme.colorScheme.error.withValues(alpha: 0.02);
     } else {
-      borderColor = isDark ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2);
+      borderColor = isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.2);
       textColor = theme.textTheme.bodyLarge?.color ?? Colors.black;
       iconColor = textColor;
       backgroundColor = theme.cardTheme.color ?? theme.scaffoldBackgroundColor;
@@ -77,7 +77,7 @@ class AppAlert extends StatelessWidget {
                   description,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: variant == AppAlertVariant.destructive 
-                        ? textColor.withOpacity(0.9) 
+                        ? textColor.withValues(alpha: 0.9) 
                         : (isDark ? Colors.grey[400] : Colors.grey[600]),
                     height: 1.5,
                   ),

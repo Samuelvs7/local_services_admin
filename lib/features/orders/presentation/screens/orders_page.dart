@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:local_services_admin/features/orders/data/models/order_model.dart';
 import 'package:local_services_admin/features/orders/data/repositories/order_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class OrdersPage extends ConsumerStatefulWidget {
   const OrdersPage({super.key});
@@ -18,8 +20,10 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
 
   void _cancelOrder(String id) {
     ref.read(orderRepositoryProvider).cancelOrder(id, 'Cancelled by admin');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Order cancelled successfully'), backgroundColor: Colors.red),
+    AppToastManager.instance.show(
+      title: 'Order Cancelled',
+      description: 'Order #$id has been successfully voided.',
+      variant: AppToastVariant.destructive,
     );
   }
 
@@ -85,10 +89,10 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
             // 3. Filters & Table Card
             Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardTheme.color,
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
-                  BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4)),
+                  BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4)),
                 ],
               ),
               child: Column(
@@ -102,7 +106,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                         Container(
                           width: 250,
                           height: 40,
-                          decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+                          decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
                           child: TextField(
                             onChanged: (v) => setState(() => _searchQuery = v),
                             decoration: const InputDecoration(
@@ -129,7 +133,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                     columnSpacing: 24,
                     headingRowHeight: 50,
                     dataRowMaxHeight: 70,
-                    headingRowColor: WidgetStateProperty.all(const Color(0xFFF9F9FA)),
+                    headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withValues(alpha: 0.05)),
                     columns: const [
                       DataColumn(label: _ColHeader('ORDER ID')),
                       DataColumn(label: _ColHeader('CUSTOMER')),
@@ -165,7 +169,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
                               IconButton(
                                 icon: const Icon(Icons.cancel_outlined, size: 18),
                                 onPressed: () => _showCancelConfirm(o.id),
-                                color: Colors.redAccent.withOpacity(0.7),
+                                color: Colors.redAccent.withValues(alpha: 0.7),
                               ),
                           ],
                         )),
@@ -190,17 +194,17 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -220,7 +224,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
   Widget _buildDropdown(String label, String value, List<String> items, Function(String?) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
@@ -239,7 +243,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
      
      return Container(
        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-       decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+        decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
        child: Text(type.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
      );
   }
@@ -254,7 +258,7 @@ class _OrdersPageState extends ConsumerState<OrdersPage> {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -337,7 +341,7 @@ class _OrderDetailDialog extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 24),
-              _buildInfoGrid(),
+              _buildInfoGrid(context),
               const SizedBox(height: 24),
               const Text('ITEMS', style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey, letterSpacing: 1)),
               const SizedBox(height: 12),
@@ -345,7 +349,7 @@ class _OrderDetailDialog extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: const Color(0xFFF9F9FA), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(10)),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -356,13 +360,13 @@ class _OrderDetailDialog extends StatelessWidget {
                 ),
               )),
               const SizedBox(height: 24),
-              _buildTotalSummary(),
+              _buildTotalSummary(context),
               if (order.cancellationReason != null) ...[
                 const SizedBox(height: 16),
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(color: Colors.red.withOpacity(0.05), border: Border.all(color: Colors.red.withOpacity(0.1)), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: Colors.red.withValues(alpha: 0.05), border: Border.all(color: Colors.red.withValues(alpha: 0.1)), borderRadius: BorderRadius.circular(10)),
                   child: Text('Cancelled: ${order.cancellationReason}', style: const TextStyle(color: Colors.red, fontSize: 12)),
                 ),
               ],
@@ -387,7 +391,7 @@ class _OrderDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoGrid() {
+  Widget _buildInfoGrid(BuildContext context) {
     final info = [
       ['Customer', order.userName],
       ['Store', order.storeName],
@@ -403,7 +407,7 @@ class _OrderDetailDialog extends StatelessWidget {
       children: info.map((i) => Container(
         width: 270,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -416,10 +420,10 @@ class _OrderDetailDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildTotalSummary() {
+  Widget _buildTotalSummary(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF1E1E2D), borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
       child: Column(
         children: [
           _summaryRow('Subtotal', formatCurrency(order.totalAmount - order.deliveryFee - order.platformFee)),

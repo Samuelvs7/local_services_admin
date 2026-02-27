@@ -45,7 +45,7 @@ class AppBadge extends StatelessWidget {
         backgroundColor = Colors.transparent;
         textColor = theme.textTheme.bodyMedium?.color ?? Colors.black;
         border = Border.all(
-          color: isDark ? Colors.white.withOpacity(0.2) : Colors.grey.withOpacity(0.4),
+          color: isDark ? Colors.white.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.4),
         );
         break;
     }

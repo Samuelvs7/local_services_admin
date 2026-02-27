@@ -8,6 +8,9 @@ import 'package:local_services_admin/features/auth/presentation/providers/auth_p
 import 'package:local_services_admin/features/stores/data/repositories/menu_repository.dart';
 import 'package:local_services_admin/features/orders/data/repositories/order_repository.dart';
 import 'package:local_services_admin/features/orders/data/models/order_model.dart';
+import 'package:local_services_admin/features/stores/data/models/product_model.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class StoresPage extends ConsumerStatefulWidget {
   const StoresPage({super.key});
@@ -36,8 +39,12 @@ class _StoresPageState extends ConsumerState<StoresPage> {
       ref.read(storeRepositoryProvider).suspendStore(storeId, adminId);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Store $newStatus updated successfully'), backgroundColor: Colors.blue),
+    AppToastManager.instance.show(
+      title: 'Store Status Updated',
+      description: 'Store has been moved to ${newStatus.name.toUpperCase()}.',
+      variant: (newStatus == StoreStatus.rejected || newStatus == StoreStatus.suspended) 
+        ? AppToastVariant.destructive 
+        : AppToastVariant.defaultVariant,
     );
   }
 
@@ -98,7 +105,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20)],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20)],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,7 +117,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
                             Container(
                               width: 250,
                               height: 40,
-                              decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+                              decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
                               child: TextField(
                                 onChanged: (v) => setState(() => _searchQuery = v),
                                 decoration: const InputDecoration(
@@ -135,7 +142,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
                         columnSpacing: 24,
                         headingRowHeight: 50,
                         dataRowMaxHeight: 70,
-                        headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withOpacity(0.05)),
+                        headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withValues(alpha: 0.05)),
                         columns: const [
                           DataColumn(label: _ColHeader('STORE')),
                           DataColumn(label: _ColHeader('SERVICE')),
@@ -207,15 +214,15 @@ class _StoresPageState extends ConsumerState<StoresPage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10)],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -224,7 +231,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
             children: [
               Text(title, style: TextStyle(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500)),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E))),
+              Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
             ],
           ),
         ],
@@ -235,7 +242,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
   Widget _buildFilterDropdown(String value, List<String> items, Function(String?) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+      decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<String>(
           value: value,
@@ -253,7 +260,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
     if (type == 'parcel') color = Colors.purple;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Text(type.toUpperCase(), style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold)),
     );
   }
@@ -268,7 +275,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
     }
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -314,7 +321,7 @@ class _StoresPageState extends ConsumerState<StoresPage> {
               maxLines: 3,
               decoration: InputDecoration(
                 hintText: 'e.g. Incomplete documentation',
-                fillColor: const Color(0xFFF3F4F6),
+                fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                 filled: true,
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
               ),
@@ -471,9 +478,9 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
             children: widget.store.documents.map((doc) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3F4F6), 
+                color: Theme.of(context).inputDecorationTheme.fillColor, 
                 borderRadius: BorderRadius.circular(8), 
-                border: Border.all(color: Colors.black.withOpacity(0.05))
+                border: Border.all(color: Colors.black.withValues(alpha: 0.05))
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -490,7 +497,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: const Color(0xFFF9F9FA), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
             child: widget.auditLogs.isEmpty 
               ? const Center(child: Text('No audit logs found', style: TextStyle(color: Colors.grey)))
               : Column(
@@ -524,66 +531,210 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
     
     return productsAsync.when(
       data: (products) {
-        if (products.isEmpty) {
-          return const Center(child: Text('No products listed in this store.'));
-        }
-        return GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            childAspectRatio: 2.2,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
-          ),
-          itemCount: products.length,
-          itemBuilder: (context, index) {
-            final p = products[index];
-            return Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey.withOpacity(0.2)),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: 50,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
-                      image: p.imageUrl.isNotEmpty ? DecorationImage(image: NetworkImage(p.imageUrl), fit: BoxFit.cover) : null,
-                    ),
-                    child: p.imageUrl.isEmpty ? const Icon(Icons.fastfood, color: Colors.grey) : null,
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('${products.length} Products', style: TextStyle(fontSize: 14, color: Colors.grey[600], fontWeight: FontWeight.w500)),
+                ElevatedButton.icon(
+                  onPressed: () => _showProductForm(),
+                  icon: const Icon(Icons.add, size: 18, color: Colors.white),
+                  label: const Text('Add Product', style: TextStyle(color: Colors.white)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF6B00),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), overflow: TextOverflow.ellipsis)),
-                            if (!p.isAvailable) Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: const BoxDecoration(color: Colors.red, shape: BoxShape.circle),
-                              child: const Icon(Icons.block, size: 8, color: Colors.white),
-                            ),
-                          ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: products.isEmpty 
+              ? const Center(child: Text('No products listed in this store.'))
+              : GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    childAspectRatio: 2.2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                  ),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    final p = products[index];
+                    return MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () => _showProductForm(product: p),
+                        child: Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardTheme.color,
+                            border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 50,
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[100],
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: p.imageUrl.isNotEmpty ? DecorationImage(image: NetworkImage(p.imageUrl), fit: BoxFit.cover) : null,
+                                ),
+                                child: p.imageUrl.isEmpty ? const Icon(Icons.fastfood_rounded, color: Colors.grey, size: 24) : null,
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Expanded(child: Text(p.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), overflow: TextOverflow.ellipsis)),
+                                        Switch(
+                                          value: p.isAvailable, 
+                                          onChanged: (v) {
+                                            ref.read(menuRepositoryProvider).toggleProductAvailability(p.id, v);
+                                            AppToastManager.instance.show(
+                                              title: v ? 'Product Available' : 'Product Hidden',
+                                              description: '${p.name} status updated.',
+                                            );
+                                          },
+                                          activeThumbColor: Colors.green,
+                                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        ),
+                                      ],
+                                    ),
+                                    Text('₹${p.price}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
+                                    Row(
+                                      children: [
+                                        Text(p.category, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
+                                        const Spacer(),
+                                        IconButton(
+                                          icon: const Icon(Icons.delete_outline, size: 16, color: Colors.red),
+                                          onPressed: () => _deleteProduct(p),
+                                          padding: EdgeInsets.zero,
+                                          constraints: const BoxConstraints(),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        Text('₹${p.price}', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12)),
-                        Text(p.category, style: TextStyle(fontSize: 10, color: Colors.grey[500])),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            );
-          },
+                      ),
+                    );
+                  },
+                ),
+            ),
+          ],
         );
       },
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, s) => Center(child: Text('Error: $e')),
+    );
+  }
+
+  void _deleteProduct(ProductModel product) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Product?'),
+        content: Text('Are you sure you want to delete "${product.name}"? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () {
+              ref.read(menuRepositoryProvider).deleteProduct(product.id);
+              AppToastManager.instance.show(
+                title: 'Product Deleted',
+                description: '${product.name} removed from menu.',
+                variant: AppToastVariant.destructive,
+              );
+              Navigator.pop(context);
+            }, 
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showProductForm({ProductModel? product}) {
+    final nameController = TextEditingController(text: product?.name);
+    final descController = TextEditingController(text: product?.description);
+    final priceController = TextEditingController(text: product?.price.toString());
+    final categoryController = TextEditingController(text: product?.category ?? 'General');
+    final imgController = TextEditingController(text: product?.imageUrl);
+    bool isVeg = product?.isVeg ?? true;
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(product == null ? 'Add New Product' : 'Edit Product'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Product Name')),
+                TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+                Row(
+                  children: [
+                    Expanded(child: TextField(controller: priceController, decoration: const InputDecoration(labelText: 'Price', prefixText: '₹'), keyboardType: TextInputType.number)),
+                    const SizedBox(width: 16),
+                    Expanded(child: TextField(controller: categoryController, decoration: const InputDecoration(labelText: 'Category'))),
+                  ],
+                ),
+                TextField(controller: imgController, decoration: const InputDecoration(labelText: 'Image URL')),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    const Text('Vegetarian food?'),
+                    const SizedBox(width: 12),
+                    Switch(value: isVeg, onChanged: (v) => setDialogState(() => isVeg = v)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+            ElevatedButton(
+              onPressed: () {
+                final newProduct = ProductModel(
+                  id: product?.id ?? '',
+                  storeId: widget.store.id,
+                  name: nameController.text,
+                  description: descController.text,
+                  price: double.tryParse(priceController.text) ?? 0.0,
+                  imageUrl: imgController.text,
+                  category: categoryController.text,
+                  isAvailable: product?.isAvailable ?? true,
+                  isVeg: isVeg,
+                  createdAt: product?.createdAt ?? DateTime.now(),
+                );
+
+                if (product == null) {
+                  ref.read(menuRepositoryProvider).addProduct(newProduct);
+                  AppToastManager.instance.show(title: 'Product Added', description: '${newProduct.name} created successfully.');
+                } else {
+                  ref.read(menuRepositoryProvider).updateProduct(newProduct);
+                  AppToastManager.instance.show(title: 'Product Updated', description: '${newProduct.name} saved changes.');
+                }
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),
+              child: Text(product == null ? 'Add' : 'Update', style: const TextStyle(color: Colors.white)),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -595,7 +746,6 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
         final totalOrders = orders.length;
         final totalRevenue = orders.where((o) => o.status == OrderStatus.delivered).fold<double>(0, (sum, o) => sum + o.totalAmount);
         final deliveredCount = orders.where((o) => o.status == OrderStatus.delivered).length;
-        final cancelledCount = orders.where((o) => o.status == OrderStatus.cancelled).length;
 
         return Column(
           children: [
@@ -611,7 +761,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
             const SizedBox(height: 24),
             Expanded(
               child: Container(
-                decoration: BoxDecoration(color: const Color(0xFFF9F9FA), borderRadius: BorderRadius.circular(12)),
+                decoration: BoxDecoration(color: Theme.of(context).dividerColor.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(12)),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -622,7 +772,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
                     Expanded(
                       child: ListView.separated(
                         itemCount: orders.take(5).length,
-                        separatorBuilder: (_, __) => const Divider(height: 1),
+                        separatorBuilder: (context, _) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final o = orders[index];
                           return ListTile(
@@ -651,9 +801,9 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -686,7 +836,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
       children: info.map((i) => Container(
         width: 380,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: const Color(0xFFF3F4F6), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(color: Theme.of(context).inputDecorationTheme.fillColor, borderRadius: BorderRadius.circular(10)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

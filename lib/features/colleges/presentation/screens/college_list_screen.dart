@@ -5,6 +5,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../data/services/college_service.dart';
 import '../../data/models/college_model.dart';
 import '../../presentation/screens/college_detail_screen.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 
 class CollegeListScreen extends ConsumerStatefulWidget {
@@ -27,7 +29,7 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
     final collegesAsync = ref.watch(collegesStreamProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: collegesAsync.when(
         data: (colleges) {
           final filtered = colleges.where((c) {
@@ -36,8 +38,8 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                    c.city.toLowerCase().contains(query);
           }).toList();
 
-          final totalStudents = colleges.fold<int>(0, (sum, c) => sum + c.totalStudents);
-          final totalRevenue = colleges.fold<double>(0, (sum, c) => sum + c.revenue);
+          final totalStudents = colleges.fold<int>(0, (acc, c) => acc + c.totalStudents);
+          final totalRevenue = colleges.fold<double>(0, (acc, c) => acc + c.revenue);
           final activeCount = colleges.where((c) => c.isActive).length;
 
           return SingleChildScrollView(
@@ -52,9 +54,9 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'College Management',
-                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E)),
+                          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -97,10 +99,10 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                 // 3. Data Table Card
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardTheme.color,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
-                      BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 20, offset: const Offset(0, 4)),
+                      BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 20, offset: const Offset(0, 4)),
                     ],
                   ),
                   child: Column(
@@ -114,8 +116,8 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                             Container(
                               width: 300,
                               height: 40,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF3F4F6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).inputDecorationTheme.fillColor,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: TextField(
@@ -141,12 +143,12 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                       
                       // Table
                       Theme(
-                        data: Theme.of(context).copyWith(dividerColor: Colors.grey.withOpacity(0.05)),
+                        data: Theme.of(context).copyWith(dividerColor: Colors.grey.withValues(alpha: 0.05)),
                         child: DataTable(
                           columnSpacing: 24,
                           headingRowHeight: 50,
                           dataRowMaxHeight: 70,
-                          headingRowColor: WidgetStateProperty.all(const Color(0xFFF9F9FA)),
+                          headingRowColor: WidgetStateProperty.all(Theme.of(context).dividerColor.withValues(alpha: 0.05)),
                           columns: const [
                             DataColumn(label: _ColHeader('COLLEGE NAME')),
                             DataColumn(label: _ColHeader('STUDENTS')),
@@ -165,7 +167,7 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(c.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF1E1E2D))),
+                                  Text(c.name, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Theme.of(context).textTheme.bodyLarge?.color?.withValues(alpha: 0.9))),
                                   Text('${c.city}, ${c.state}', style: TextStyle(fontSize: 11, color: Colors.grey[500])),
                                 ],
                               )),
@@ -185,7 +187,7 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
                                   IconButton(
                                     icon: const Icon(Icons.delete_outline_rounded, size: 18),
                                     onPressed: () => _showDeleteConfirm(context, c),
-                                    color: Colors.redAccent.withOpacity(0.7),
+                                    color: Colors.redAccent.withValues(alpha: 0.7),
                                     tooltip: 'Deactivate',
                                   ),
                                 ],
@@ -213,17 +215,17 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
       width: width < 200 ? 200 : width,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 10, offset: const Offset(0, 2)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10, offset: const Offset(0, 2)),
         ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
             child: Icon(icon, color: color, size: 24),
           ),
           const SizedBox(width: 16),
@@ -232,7 +234,7 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
             children: [
               Text(title, style: TextStyle(color: Colors.grey[500], fontSize: 13, fontWeight: FontWeight.w500)),
               const SizedBox(height: 4),
-              Text(value, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E))),
+              Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
             ],
           ),
         ],
@@ -258,6 +260,11 @@ class _CollegeListScreenState extends ConsumerState<CollegeListScreen> {
           ElevatedButton(
             onPressed: () {
               ref.read(collegeServiceProvider).softDeleteCollege(college.id);
+              AppToastManager.instance.show(
+                title: 'College Deactivated',
+                description: '${college.name} is now hidden.',
+                variant: AppToastVariant.destructive,
+              );
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -286,7 +293,7 @@ class _StatusBadge extends StatelessWidget {
     final color = isActive ? Colors.green : Colors.red;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(20)),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(20)),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -378,8 +385,10 @@ class __AddEditCollegeDialogState extends ConsumerState<_AddEditCollegeDialog> {
 
               if (widget.college == null) {
                 await ref.read(collegeServiceProvider).addCollege(data);
+                AppToastManager.instance.show(title: 'College Added', description: '${data['name']} linked successfully.');
               } else {
                 await ref.read(collegeServiceProvider).updateCollege(widget.college!.id, data);
+                 AppToastManager.instance.show(title: 'College Updated', description: 'Changes saved for ${data['name']}.');
               }
               if (mounted) Navigator.pop(context);
             }
@@ -406,7 +415,7 @@ class __AddEditCollegeDialogState extends ConsumerState<_AddEditCollegeDialog> {
               hintText: hint,
               hintStyle: const TextStyle(fontSize: 13, color: Colors.grey),
               contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              fillColor: const Color(0xFFF3F4F6),
+              fillColor: Theme.of(context).inputDecorationTheme.fillColor,
               filled: true,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
             ),

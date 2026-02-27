@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum AdminRole {
-  super_admin,
+  superAdmin,
   moderator,
-  finance_admin,
+  financeAdmin,
 }
 
 class AdminUser {
@@ -11,7 +13,7 @@ class AdminUser {
   final AdminRole role;
   final bool isActive;
   final DateTime lastLogin;
-  final String createdAt;
+  final DateTime createdAt;
 
   AdminUser({
     required this.id,
@@ -22,4 +24,31 @@ class AdminUser {
     required this.lastLogin,
     required this.createdAt,
   });
+
+  factory AdminUser.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return AdminUser(
+      id: doc.id,
+      name: data['name'] ?? '',
+      email: data['email'] ?? '',
+      role: AdminRole.values.firstWhere(
+        (e) => e.name == (data['role'] ?? 'moderator'),
+        orElse: () => AdminRole.moderator,
+      ),
+      isActive: data['isActive'] ?? true,
+      lastLogin: (data['lastLogin'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'email': email,
+      'role': role.name,
+      'isActive': isActive,
+      'lastLogin': lastLogin,
+      'createdAt': createdAt,
+    };
+  }
 }

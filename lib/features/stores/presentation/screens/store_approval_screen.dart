@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/store_provider.dart';
 import '../../data/models/store_model.dart';
 import 'package:intl/intl.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class StoreApprovalScreen extends ConsumerWidget {
   const StoreApprovalScreen({super.key});
@@ -119,7 +121,7 @@ class _StoreCard extends ConsumerWidget {
             Row(
               children: [
                 CircleAvatar(
-                  backgroundColor: Colors.blue.withOpacity(0.1),
+                  backgroundColor: Colors.blue.withValues(alpha: 0.1),
                   child: Text(
                     store.name.isNotEmpty ? store.name[0].toUpperCase() : '?',
                     style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue),
@@ -176,6 +178,10 @@ class _StoreCard extends ConsumerWidget {
                        // Admin ID should be fetched from Auth Provider, but for MVP we mock or pass user id
                        // Assuming we have a user provider or similar. Using 'admin' for now.
                        ref.read(storeActionControllerProvider.notifier).approveStore(store.id, 'admin');
+                       AppToastManager.instance.show(
+                         title: 'Store Approved',
+                         description: '${store.name} has been successfully onboarded.',
+                       );
                     },
                      style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
@@ -188,7 +194,12 @@ class _StoreCard extends ConsumerWidget {
                    TextButton.icon(
                      onPressed: () {
                         // Suspend checks
-                         ref.read(storeActionControllerProvider.notifier).suspendStore(store.id, 'admin');
+                          ref.read(storeActionControllerProvider.notifier).suspendStore(store.id, 'admin');
+                          AppToastManager.instance.show(
+                            title: 'Store Suspended',
+                            description: '${store.name} is now hidden from users.',
+                            variant: AppToastVariant.destructive,
+                          );
                      },
                      icon: const Icon(Icons.block, size: 16, color: Colors.orange),
                      label: const Text("Suspend", style: TextStyle(color: Colors.orange)),
@@ -225,6 +236,11 @@ class _StoreCard extends ConsumerWidget {
             onPressed: () {
               if (reasonController.text.trim().isNotEmpty) {
                  ref.read(storeActionControllerProvider.notifier).rejectStore(storeId, 'admin', reasonController.text.trim());
+                 AppToastManager.instance.show(
+                   title: 'Application Rejected',
+                   description: 'Store request has been declined.',
+                   variant: AppToastVariant.destructive,
+                 );
                  Navigator.pop(context);
               }
             },

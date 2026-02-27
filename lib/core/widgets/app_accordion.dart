@@ -82,7 +82,7 @@ class _AppAccordionItemState extends State<AppAccordionItem> with SingleTickerPr
       decoration: BoxDecoration(
         border: Border(
           bottom: BorderSide(
-            color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.2),
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -31,30 +32,27 @@ class _SettingsPageState extends State<SettingsPage> {
     await Future.delayed(const Duration(seconds: 1));
     
     if (mounted) {
-      setState(() {
-        _isSaving = false;
-        _showSaved = true;
-      });
-      
-      Future.delayed(const Duration(seconds: 2), () {
-        if (mounted) setState(() => _showSaved = false);
-      });
+      setState(() => _isSaving = false);
+      AppToastManager.instance.show(
+        title: 'Settings Saved',
+        description: 'Global platform configurations have been updated.',
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9F9FA),
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header
-            const Text(
+            Text(
               'Platform Settings',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E)),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color),
             ),
             const SizedBox(height: 4),
             Text(
@@ -141,16 +139,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
                 ),
-                if (_showSaved) ...[
-                  const SizedBox(width: 16),
-                  const Row(
-                    children: [
-                      Icon(Icons.check_circle_rounded, color: Colors.green, size: 18),
-                      SizedBox(width: 8),
-                      Text('Settings saved successfully', style: TextStyle(color: Colors.green, fontSize: 13, fontWeight: FontWeight.w500)),
-                    ],
-                  ),
-                ],
+                // Removed _showSaved logic as we use toasts now
               ],
             ),
             const SizedBox(height: 50),
@@ -165,9 +154,9 @@ class _SettingsPageState extends State<SettingsPage> {
       width: double.infinity,
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 20, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -176,7 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
             children: [
               Icon(icon, size: 20, color: const Color(0xFFFF6B00)),
               const SizedBox(width: 12),
-              Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF1E1E2D))),
+              Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
             ],
           ),
           const SizedBox(height: 24),
@@ -201,9 +190,9 @@ class _SettingsPageState extends State<SettingsPage> {
               decoration: InputDecoration(
                 hintText: hint,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                fillColor: const Color(0xFFF9F9FA),
+                fillColor: Theme.of(context).inputDecorationTheme.fillColor,
                 filled: true,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide(color: Theme.of(context).dividerColor.withValues(alpha: 0.1))),
                 focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: Color(0xFFFF6B00), width: 1)),
               ),
               style: const TextStyle(fontSize: 14),
@@ -218,7 +207,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.1))),
+        border: Border(bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.1))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -226,7 +215,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF2A2D3E))),
+              Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).textTheme.bodyLarge?.color)),
               const SizedBox(height: 2),
               Text(desc, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
             ],

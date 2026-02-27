@@ -4,7 +4,6 @@ import 'package:local_services_admin/features/dashboard/presentation/screens/das
 import 'package:local_services_admin/features/admins/presentation/screens/admins_page.dart';
 import 'package:local_services_admin/features/colleges/presentation/screens/college_list_screen.dart';
 import 'package:local_services_admin/features/finance/presentation/screens/finance_page.dart';
-import 'package:local_services_admin/features/notifications/presentation/screens/notifications_page.dart';
 import 'package:local_services_admin/features/orders/presentation/screens/orders_page.dart';
 import 'package:local_services_admin/features/services/presentation/screens/services_page.dart';
 import 'package:local_services_admin/features/settings/presentation/screens/settings_page.dart';

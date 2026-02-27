@@ -32,10 +32,10 @@ class DashboardStatsCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(16),
-          border: isDark ? Border.all(color: Colors.white.withOpacity(0.05)) : null,
+          border: isDark ? Border.all(color: Colors.white.withValues(alpha: 0.05)) : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+              color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
               blurRadius: 20,
               offset: const Offset(0, 4),
             ),
@@ -75,7 +75,7 @@ class DashboardStatsCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1), // Reverted invalid withValues
+                    color: color.withValues(alpha: 0.1), 
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(icon, color: color, size: 24),

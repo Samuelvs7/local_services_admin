@@ -25,7 +25,7 @@ class AppAlertDialog extends StatelessWidget {
       context: context,
       barrierDismissible: true,
       barrierLabel: 'Alert Dialog',
-      barrierColor: Colors.black.withOpacity(0.8),
+      barrierColor: Colors.black.withValues(alpha: 0.8),
       transitionDuration: const Duration(milliseconds: 200),
       pageBuilder: (context, animation, secondaryAnimation) {
         return Center(
@@ -66,11 +66,11 @@ class AppAlertDialog extends StatelessWidget {
           color: theme.cardTheme.color ?? theme.scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.2),
+            color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.2),
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               blurRadius: 32,
               offset: const Offset(0, 8),
             ),
@@ -139,7 +139,7 @@ class AppAlertDialogCancel extends StatelessWidget {
       style: OutlinedButton.styleFrom(
         foregroundColor: theme.textTheme.bodyLarge?.color,
         side: BorderSide(
-          color: isDark ? Colors.white.withOpacity(0.1) : Colors.grey.withOpacity(0.3),
+          color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.withValues(alpha: 0.3),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),

@@ -15,10 +15,10 @@ class RecentOrdersTable extends ConsumerWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.05)),
+        border: Border.all(color: Theme.of(context).dividerColor.withValues(alpha: 0.05)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04),
+            color: Colors.black.withValues(alpha: Theme.of(context).brightness == Brightness.dark ? 0.2 : 0.04),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -104,40 +104,34 @@ class RecentOrdersTable extends ConsumerWidget {
   }
 
   Widget _buildStatusBadge(OrderStatus status) {
-    Color bg;
-    Color text;
+    Color color;
     
     switch (status) {
       case OrderStatus.delivered:
-        bg = Colors.green.shade50;
-        text = Colors.green;
+        color = Colors.green;
         break;
       case OrderStatus.pending:
-        bg = Colors.amber.shade50;
-        text = Colors.amber.shade800;
+        color = Colors.amber;
         break;
       case OrderStatus.accepted:
-        bg = Colors.blue.shade50;
-        text = Colors.blue;
+        color = Colors.blue;
         break;
       case OrderStatus.cancelled:
-        bg = Colors.red.shade50;
-        text = Colors.red;
+        color = Colors.red;
         break;
       default:
-        bg = Colors.grey.shade100;
-        text = Colors.grey;
+        color = Colors.grey;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: bg,
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         status.name.toUpperCase(),
-        style: TextStyle(color: text, fontSize: 10, fontWeight: FontWeight.bold),
+        style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }

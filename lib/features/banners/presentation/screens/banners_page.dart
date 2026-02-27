@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_services_admin/features/banners/data/models/banner_model.dart';
 import 'package:local_services_admin/features/banners/data/repositories/banner_repository.dart';
 import 'package:local_services_admin/features/colleges/data/repositories/college_repository.dart';
+import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
 
 class BannersPage extends ConsumerStatefulWidget {
   const BannersPage({super.key});
@@ -110,7 +112,7 @@ class _BannersPageState extends ConsumerState<BannersPage> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -139,9 +141,13 @@ class _BannersPageState extends ConsumerState<BannersPage> {
                   right: 12,
                   child: Switch(
                     value: banner.isActive,
-                    onChanged: (v) => ref
-                        .read(bannerRepositoryProvider)
-                        .toggleActive(banner.id, v),
+                    onChanged: (v) {
+                      ref.read(bannerRepositoryProvider).toggleActive(banner.id, v);
+                      AppToastManager.instance.show(
+                        title: 'Banner Updated',
+                        description: 'Banner is now ${v ? 'active' : 'inactive'}.',
+                      );
+                    },
                     activeColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
@@ -151,7 +157,7 @@ class _BannersPageState extends ConsumerState<BannersPage> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
@@ -176,7 +182,7 @@ class _BannersPageState extends ConsumerState<BannersPage> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
@@ -226,6 +232,11 @@ class _BannersPageState extends ConsumerState<BannersPage> {
           ElevatedButton(
             onPressed: () {
               ref.read(bannerRepositoryProvider).deleteBanner(id);
+              AppToastManager.instance.show(
+                title: 'Banner Deleted',
+                description: 'The promotional asset has been removed.',
+                variant: AppToastVariant.destructive,
+              );
               Navigator.pop(context);
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -330,6 +341,10 @@ class _AddBannerDialogState extends ConsumerState<_AddBannerDialog> {
             );
 
             ref.read(bannerRepositoryProvider).addBanner(newBanner);
+            AppToastManager.instance.show(
+              title: 'Banner Created',
+              description: 'Your new promo asset is now live.',
+            );
             Navigator.pop(context);
           },
           child: const Text('Create Banner'),

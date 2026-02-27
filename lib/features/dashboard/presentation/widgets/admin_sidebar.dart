@@ -25,7 +25,7 @@ class AdminSidebar extends ConsumerWidget {
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkSurface : const Color(0xFF1E1E2D),
         border: Border(
-          right: BorderSide(color: isDark ? AppColors.darkBorder : Colors.white.withOpacity(0.05)),
+          right: BorderSide(color: isDark ? AppColors.darkBorder : Colors.white.withValues(alpha: 0.05)),
         ),
       ),
       child: Column(
@@ -142,7 +142,7 @@ class AdminSidebar extends ConsumerWidget {
       padding: EdgeInsets.symmetric(horizontal: collapsed ? 0 : 20),
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Colors.white.withOpacity(0.05)),
+          bottom: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
         ),
       ),
       child: Row(
@@ -155,7 +155,7 @@ class AdminSidebar extends ConsumerWidget {
               borderRadius: BorderRadius.circular(8),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 ),
@@ -165,28 +165,32 @@ class AdminSidebar extends ConsumerWidget {
           ),
           if (!collapsed) ...[
             const SizedBox(width: 12),
-            const Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'NexSus Admin',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    letterSpacing: -0.5,
+            const Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'NexSus Admin',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                      letterSpacing: -0.5,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Text(
-                  'Hyperlocal Platform',
-                  style: TextStyle(
-                    color: Colors.white38,
-                    fontSize: 10,
-                    fontWeight: FontWeight.w500,
+                  Text(
+                    'Hyperlocal Platform',
+                    style: TextStyle(
+                      color: Colors.white38,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ],
@@ -204,7 +208,7 @@ class AdminSidebar extends ConsumerWidget {
             child: Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.white.withValues(alpha: 0.2),
                 fontSize: 10,
                 fontWeight: FontWeight.bold,
                 letterSpacing: 1.5,
@@ -223,7 +227,7 @@ class AdminSidebar extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
           border: Border(
-            top: BorderSide(color: Colors.white.withOpacity(0.05)),
+            top: BorderSide(color: Colors.white.withValues(alpha: 0.05)),
           ),
         ),
         child: Row(
@@ -276,7 +280,7 @@ class _SidebarItem extends StatelessWidget {
             vertical: 10,
           ),
           decoration: BoxDecoration(
-            color: isSelected ? Theme.of(context).colorScheme.primary.withOpacity(0.12) : Colors.transparent,
+            color: isSelected ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.12) : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Stack(

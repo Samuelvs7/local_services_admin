@@ -7,6 +7,7 @@ import 'core/screens/not_found_screen.dart';
 import 'features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'core/theme/app_theme.dart';
 import 'core/providers/theme_provider.dart';
+import 'core/widgets/app_toaster.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,14 @@ class AdminApp extends ConsumerWidget {
       routes: {
         '/login': (context) => const AdminLoginScreen(),
         '/dashboard': (context) => const AdminDashboardScreen(),
+      },
+      builder: (context, child) {
+        return Stack(
+          children: [
+            if (child != null) child,
+            const AppToaster(),
+          ],
+        );
       },
     );
   }

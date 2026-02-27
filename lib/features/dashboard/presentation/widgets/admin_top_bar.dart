@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_services_admin/features/auth/presentation/providers/auth_provider.dart';
+import 'package:local_services_admin/features/admins/data/models/admin_user_model.dart';
 import 'package:local_services_admin/core/providers/theme_provider.dart';
 import 'package:local_services_admin/core/theme/app_colors.dart';
 import 'package:local_services_admin/core/utils/responsive.dart';
@@ -12,13 +14,25 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = ref.watch(themeProvider) == AppThemeType.dark;
     final theme = Theme.of(context);
+    final currentAdminAsync = ref.watch(currentAdminProvider);
+    
+    String displayName = 'Admin User';
+    String roleLabel = 'Super Admin';
+    
+    currentAdminAsync.whenData((admin) {
+      if (admin != null) {
+        displayName = admin.name;
+        roleLabel = admin.role == AdminRole.superAdmin ? 'Super Admin' : 
+                   admin.role == AdminRole.moderator ? 'Moderator' : 'Finance Admin';
+      }
+    });
 
     return Container(
       height: 64,
       decoration: BoxDecoration(
-        color: theme.scaffoldBackgroundColor.withOpacity(0.8),
+        color: theme.scaffoldBackgroundColor.withValues(alpha: 0.8),
         border: Border(
-          bottom: BorderSide(color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.withOpacity(0.1)),
+          bottom: BorderSide(color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.withValues(alpha: 0.1)),
         ),
       ),
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -69,7 +83,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
               Container(
                 width: 1,
                 height: 32,
-                color: Colors.grey.withOpacity(0.1),
+                color: Colors.grey.withValues(alpha: 0.1),
               ),
               
               const SizedBox(width: 20),
@@ -134,9 +148,9 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.1),
+        color: Colors.amber.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.amber.withOpacity(0.2)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -175,9 +189,9 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+              border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
             ),
             child: Icon(Icons.shield_rounded, color: Theme.of(context).colorScheme.primary, size: 18),
           ),
@@ -187,7 +201,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Suresh Babu',
+                displayName,
                 style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -195,7 +209,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
                 ),
               ),
               const Text(
-                'Super Admin',
+                roleLabel,
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.blueGrey,
