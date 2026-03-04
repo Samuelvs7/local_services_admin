@@ -390,7 +390,8 @@ class __AddEditCollegeDialogState extends ConsumerState<_AddEditCollegeDialog> {
                 await ref.read(collegeServiceProvider).updateCollege(widget.college!.id, data);
                  AppToastManager.instance.show(title: 'College Updated', description: 'Changes saved for ${data['name']}.');
               }
-              if (mounted) Navigator.pop(context);
+              if (!context.mounted) return;
+              Navigator.pop(context);
             }
           },
           style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFF6B00)),

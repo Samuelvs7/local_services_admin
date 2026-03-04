@@ -47,8 +47,14 @@ class DashboardRepository {
       int rejectedStores = storesSnap.docs.where((d) => d['status'] == 'rejected').length;
       
       // 4. Process Colleges Data
-      int totalColleges = collegesSnap.docs.where((d) => d['isDeleted'] == false).length;
-      int activeColleges = collegesSnap.docs.where((d) => d['isActive'] == true && d['isDeleted'] == false).length;
+      int totalColleges = collegesSnap.docs.where((d) {
+        final data = d.data() as Map<String, dynamic>;
+        return data['isDeleted'] != true;
+      }).length;
+      int activeColleges = collegesSnap.docs.where((d) {
+        final data = d.data() as Map<String, dynamic>;
+        return data['isActive'] == true && data['isDeleted'] != true;
+      }).length;
 
       // 5. Process Financials from Payments collection
       final paymentsSnap = await _firestore.collection('payments').get();

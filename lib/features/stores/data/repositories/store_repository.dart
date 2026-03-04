@@ -12,10 +12,14 @@ class StoreRepository {
   Stream<List<Store>> getStoresStream() {
     return _firestore
         .collection('stores')
-        .where('isDeleted', isEqualTo: false)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Store.fromFirestore(doc)).toList());
+        .map((snapshot) => snapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data['isDeleted'] != true;
+            })
+            .map((doc) => Store.fromFirestore(doc))
+            .toList());
   }
 
   // Get Pending Stores
@@ -23,10 +27,14 @@ class StoreRepository {
     return _firestore
         .collection('stores')
         .where('status', isEqualTo: 'pending')
-        .where('isDeleted', isEqualTo: false)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Store.fromFirestore(doc)).toList());
+        .map((snapshot) => snapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data['isDeleted'] != true;
+            })
+            .map((doc) => Store.fromFirestore(doc))
+            .toList());
   }
 
   // Get Approved Stores
@@ -34,10 +42,14 @@ class StoreRepository {
     return _firestore
         .collection('stores')
         .where('status', isEqualTo: 'approved')
-        .where('isDeleted', isEqualTo: false)
         .snapshots()
-        .map((snapshot) =>
-            snapshot.docs.map((doc) => Store.fromFirestore(doc)).toList());
+        .map((snapshot) => snapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data['isDeleted'] != true;
+            })
+            .map((doc) => Store.fromFirestore(doc))
+            .toList());
   }
 
   // Approve Store

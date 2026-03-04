@@ -61,6 +61,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   onMenuPressed: () {
                     _scaffoldKey.currentState?.openDrawer();
                   },
+                  onPendingPressed: () => setState(() => _selectedIndex = 2),
                 ),
                 
                 // Main Content Area

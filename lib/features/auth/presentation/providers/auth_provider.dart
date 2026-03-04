@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../admins/data/models/admin_user_model.dart';
+import '../../../admins/data/models/admin_user_model.dart';
 import '../../data/repositories/auth_repository.dart';
 
 // State definitions

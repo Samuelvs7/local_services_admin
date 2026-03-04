@@ -184,7 +184,7 @@ class _ServicesPageState extends ConsumerState<ServicesPage> {
                 child: Switch(
                   value: settings.enabled,
                   onChanged: (v) => _updateToggle(config, type, v),
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ),
             ],

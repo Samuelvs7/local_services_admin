@@ -148,7 +148,7 @@ class _BannersPageState extends ConsumerState<BannersPage> {
                         description: 'Banner is now ${v ? 'active' : 'inactive'}.',
                       );
                     },
-                    activeColor: Theme.of(context).colorScheme.primary,
+                    activeThumbColor: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 Positioned(
@@ -266,7 +266,6 @@ class _AddBannerDialogState extends ConsumerState<_AddBannerDialog> {
   final _urlController = TextEditingController();
   final _priorityController = TextEditingController(text: '0');
   String _targetType = 'none';
-  String? _targetId;
   String? _selectedCollegeId;
 
   @override
@@ -299,7 +298,7 @@ class _AddBannerDialogState extends ConsumerState<_AddBannerDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
-              value: _targetType,
+              initialValue: _targetType,
               items: const [
                 DropdownMenuItem(value: 'none', child: Text('No Redirect')),
                 DropdownMenuItem(value: 'store', child: Text('Link to Store')),
@@ -311,7 +310,7 @@ class _AddBannerDialogState extends ConsumerState<_AddBannerDialog> {
             const SizedBox(height: 16),
             collegesAsync.when(
               data: (colleges) => DropdownButtonFormField<String?>(
-                value: _selectedCollegeId,
+                initialValue: _selectedCollegeId,
                 items: [
                   const DropdownMenuItem(value: null, child: Text('Global (All Colleges)')),
                   ...colleges.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),

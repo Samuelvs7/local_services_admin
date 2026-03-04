@@ -11,17 +11,18 @@ class CollegeRepository {
   /// Returns a stream of colleges.
   /// By default, it filters out deleted colleges.
   Stream<List<College>> getCollegesStream({bool showDeleted = false}) {
-    Query query = _firestore.collection('colleges');
-    
-    if (!showDeleted) {
-      query = query.where('isDeleted', isEqualTo: false);
-    }
-
-    // Sort by createdAt descending by default to show newest first
-    query = query.orderBy('createdAt', descending: true);
-
-    return query.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) => College.fromFirestore(doc)).toList();
+    return _firestore.collection('colleges').snapshots().map((snapshot) {
+      final colleges = snapshot.docs.map((doc) => College.fromFirestore(doc)).toList();
+      
+      // Filter in memory for safety against missing fields
+      final filtered = showDeleted 
+          ? colleges 
+          : colleges.where((c) => !c.isDeleted).toList();
+          
+      // Sort in memory
+      filtered.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      
+      return filtered;
     });
   }
 

@@ -45,7 +45,7 @@ class AdminApp extends ConsumerWidget {
       builder: (context, child) {
         return Stack(
           children: [
-            if (child != null) child,
+            ?child,
             const AppToaster(),
           ],
         );

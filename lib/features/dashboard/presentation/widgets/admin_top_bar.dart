@@ -5,10 +5,12 @@ import 'package:local_services_admin/features/admins/data/models/admin_user_mode
 import 'package:local_services_admin/core/providers/theme_provider.dart';
 import 'package:local_services_admin/core/theme/app_colors.dart';
 import 'package:local_services_admin/core/utils/responsive.dart';
+import 'package:local_services_admin/features/dashboard/data/repositories/dashboard_repository.dart';
 
 class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
   final VoidCallback onMenuPressed;
-  const AdminTopBar({super.key, required this.onMenuPressed});
+  final VoidCallback onPendingPressed;
+  const AdminTopBar({super.key, required this.onMenuPressed, required this.onPendingPressed});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,16 +18,15 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
     final theme = Theme.of(context);
     final currentAdminAsync = ref.watch(currentAdminProvider);
     
-    String displayName = 'Admin User';
-    String roleLabel = 'Super Admin';
-    
-    currentAdminAsync.whenData((admin) {
-      if (admin != null) {
-        displayName = admin.name;
-        roleLabel = admin.role == AdminRole.superAdmin ? 'Super Admin' : 
-                   admin.role == AdminRole.moderator ? 'Moderator' : 'Finance Admin';
-      }
-    });
+    final (displayName, roleLabel) = currentAdminAsync.maybeWhen(
+      data: (admin) => (
+        admin?.name ?? 'Admin User',
+        admin?.role == AdminRole.superAdmin ? 'Super Admin' : 
+        admin?.role == AdminRole.moderator ? 'Moderator' : 'Finance Admin'
+      ),
+      orElse: () => ('Admin User', 'Super Admin'),
+    );
+
 
     return Container(
       height: 64,
@@ -75,7 +76,17 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
               const SizedBox(width: 12),
               
               // Pending Indicator
-              _buildPendingIndicator(),
+              Consumer(
+                builder: (context, ref, child) {
+                  final statsAsync = ref.watch(dashboardStatsProvider);
+                  return statsAsync.maybeWhen(
+                    data: (stats) => stats.pendingStoreApprovals > 0 
+                      ? _buildPendingIndicator(stats.pendingStoreApprovals) 
+                      : const SizedBox.shrink(),
+                    orElse: () => const SizedBox.shrink(),
+                  );
+                },
+              ),
               
               const SizedBox(width: 20),
               
@@ -89,7 +100,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
               const SizedBox(width: 20),
               
               // Profile Section
-              _buildProfileSection(context, isDark),
+              _buildProfileSection(context, isDark, displayName, roleLabel),
             ],
           ),
         ],
@@ -144,40 +155,44 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildPendingIndicator() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.amber.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.amber.withValues(alpha: 0.2)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: const BoxDecoration(
-              color: Colors.amber,
-              shape: BoxShape.circle,
+  Widget _buildPendingIndicator(int count) {
+    return InkWell(
+      onTap: onPendingPressed,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.amber.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.amber.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 6,
+              height: 6,
+              decoration: const BoxDecoration(
+                color: Colors.amber,
+                shape: BoxShape.circle,
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          const Text(
-            '2 Pending Approvals',
-            style: TextStyle(
-              color: Colors.amber,
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
+            const SizedBox(width: 8),
+            Text(
+              '$count Pending Approvals',
+              style: const TextStyle(
+                color: Colors.amber,
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildProfileSection(BuildContext context, bool isDark) {
+  Widget _buildProfileSection(BuildContext context, bool isDark, String displayName, String roleLabel) {
     return InkWell(
       onTap: () {
         // Handle dropdown
@@ -208,7 +223,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
                   color: Theme.of(context).textTheme.bodyLarge?.color,
                 ),
               ),
-              const Text(
+              Text(
                 roleLabel,
                 style: TextStyle(
                   fontSize: 11,

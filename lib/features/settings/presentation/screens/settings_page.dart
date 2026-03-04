@@ -23,7 +23,6 @@ class _SettingsPageState extends State<SettingsPage> {
   bool _analytics = true;
 
   bool _isSaving = false;
-  bool _showSaved = false;
 
   void _handleSave() async {
     setState(() => _isSaving = true);
@@ -223,7 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Switch(
             value: value,
             onChanged: onChanged,
-            activeColor: const Color(0xFFFF6B00),
+            activeThumbColor: const Color(0xFFFF6B00),
           ),
         ],
       ),

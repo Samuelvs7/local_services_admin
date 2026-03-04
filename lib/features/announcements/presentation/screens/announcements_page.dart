@@ -172,7 +172,7 @@ class _AnnouncementsPageState extends ConsumerState<AnnouncementsPage> {
                           description: 'Message is now ${v ? 'active' : 'inactive'}.',
                         );
                       },
-                      activeColor: Theme.of(context).colorScheme.primary,
+                      activeThumbColor: Theme.of(context).colorScheme.primary,
                     ),
                   ],
                 ),
@@ -274,7 +274,7 @@ class _AddAnnouncementDialogState extends ConsumerState<_AddAnnouncementDialog> 
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<AnnouncementType>(
-              value: _type,
+              initialValue: _type,
               items: AnnouncementType.values.map((t) => DropdownMenuItem(value: t, child: Text(t.name.toUpperCase()))).toList(),
               onChanged: (v) => setState(() => _type = v!),
               decoration: const InputDecoration(labelText: 'Alert Type'),
@@ -282,7 +282,7 @@ class _AddAnnouncementDialogState extends ConsumerState<_AddAnnouncementDialog> 
             const SizedBox(height: 16),
             collegesAsync.when(
               data: (list) => DropdownButtonFormField<String?>(
-                value: _selectedCollegeId,
+                initialValue: _selectedCollegeId,
                 items: [
                   const DropdownMenuItem(value: null, child: Text('Global (All Colleges)')),
                   ...list.map((c) => DropdownMenuItem(value: c.id, child: Text(c.name))),
