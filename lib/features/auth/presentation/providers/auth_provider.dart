@@ -41,7 +41,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // Check Role
       final userData = await _authRepository.getUserData(user.uid);
       if (userData == null) {
-        state = AuthError('User record not found in database');
+        state = AuthError('User record not found in database. UID: ${user.uid}');
         await _authRepository.signOut();
         return;
       }

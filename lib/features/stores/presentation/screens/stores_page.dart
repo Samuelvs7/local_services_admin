@@ -597,7 +597,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
                                         Switch(
                                           value: p.isAvailable, 
                                           onChanged: (v) {
-                                            ref.read(menuRepositoryProvider).toggleProductAvailability(p.id, v);
+                                            ref.read(menuRepositoryProvider).toggleProductAvailability(p.storeId, p.id, v);
                                             AppToastManager.instance.show(
                                               title: v ? 'Product Available' : 'Product Hidden',
                                               description: '${p.name} status updated.',
@@ -650,7 +650,7 @@ class _StoreDetailDialogState extends ConsumerState<_StoreDetailDialog> with Sin
           TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
-              ref.read(menuRepositoryProvider).deleteProduct(product.id);
+              ref.read(menuRepositoryProvider).deleteProduct(product.storeId, product.id);
               AppToastManager.instance.show(
                 title: 'Product Deleted',
                 description: '${product.name} removed from menu.',

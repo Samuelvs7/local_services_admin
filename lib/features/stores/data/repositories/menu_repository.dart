@@ -11,37 +11,34 @@ class MenuRepository {
   /// Streams products for a specific store
   Stream<List<ProductModel>> getStoreProductsStream(String storeId) {
     return _firestore
-        .collection('products')
-        .where('storeId', isEqualTo: storeId)
+        .collection('vendors')
+        .doc(storeId)
+        .collection('foods')
         .snapshots()
         .map((snapshot) =>
             snapshot.docs.map((doc) => ProductModel.fromFirestore(doc)).toList());
   }
 
-  /// Toggle product availability
-  Future<void> toggleProductAvailability(String productId, bool isAvailable) async {
-    await _firestore.collection('products').doc(productId).update({
+  Future<void> toggleProductAvailability(String storeId, String productId, bool isAvailable) async {
+    await _firestore.collection('vendors').doc(storeId).collection('foods').doc(productId).update({
       'isAvailable': isAvailable,
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  /// Add a new product
   Future<void> addProduct(ProductModel product) async {
-    await _firestore.collection('products').add(product.toMap());
+    await _firestore.collection('vendors').doc(product.storeId).collection('foods').add(product.toMap());
   }
 
-  /// Update an existing product
   Future<void> updateProduct(ProductModel product) async {
-    await _firestore.collection('products').doc(product.id).update({
+    await _firestore.collection('vendors').doc(product.storeId).collection('foods').doc(product.id).update({
       ...product.toMap(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  /// Delete a product
-  Future<void> deleteProduct(String productId) async {
-    await _firestore.collection('products').doc(productId).delete();
+  Future<void> deleteProduct(String storeId, String productId) async {
+    await _firestore.collection('vendors').doc(storeId).collection('foods').doc(productId).delete();
   }
 }
 

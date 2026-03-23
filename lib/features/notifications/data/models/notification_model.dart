@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 enum NotificationType {
   info,
   promo,
@@ -46,5 +48,34 @@ class NotificationModel {
       sentCount: sentCount ?? this.sentCount,
       targetName: targetName ?? this.targetName,
     );
+  }
+
+  factory NotificationModel.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return NotificationModel(
+      id: doc.id,
+      title: data['title'] ?? '',
+      body: data['body'] ?? '',
+      type: NotificationType.values.firstWhere(
+        (e) => e.name == data['type'],
+        orElse: () => NotificationType.info,
+      ),
+      sentBy: data['sentBy'] ?? 'Admin',
+      createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      sentCount: data['sentCount'] ?? 0,
+      targetName: data['targetName'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'body': body,
+      'type': type.name,
+      'sentBy': sentBy,
+      'createdAt': createdAt,
+      'sentCount': sentCount,
+      'targetName': targetName,
+    };
   }
 }

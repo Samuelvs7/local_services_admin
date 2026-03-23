@@ -4,64 +4,30 @@ import 'package:local_services_admin/features/notifications/data/models/notifica
 import 'package:local_services_admin/core/widgets/app_toaster.dart';
 
 
-class NotificationsPage extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:local_services_admin/features/notifications/data/repositories/notification_repository.dart';
+
+class NotificationsPage extends ConsumerStatefulWidget {
   const NotificationsPage({super.key});
 
   @override
-  State<NotificationsPage> createState() => _NotificationsPageState();
+  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
 }
 
-class _NotificationsPageState extends State<NotificationsPage> {
-  late List<NotificationModel> _notifications;
-
-  @override
-  void initState() {
-    super.initState();
-    _notifications = [
-      NotificationModel(
-        id: '1',
-        title: 'Platform Maintenance',
-        body: 'Scheduled maintenance this Sunday from 2 AM to 4 AM.',
-        type: NotificationType.warning,
-        sentBy: 'Admin (Samuel)',
-        createdAt: DateTime.now().subtract(const Duration(days: 1)),
-        sentCount: 97500,
-        targetName: 'All Users',
-      ),
-      NotificationModel(
-        id: '2',
-        title: 'New Feature: Flash Deals',
-        body: 'Flash deals are now live! Check out the new section in the app.',
-        type: NotificationType.promo,
-        sentBy: 'Admin',
-        createdAt: DateTime.now().subtract(const Duration(hours: 5)),
-        sentCount: 97500,
-        targetName: 'All Users',
-      ),
-      NotificationModel(
-        id: '3',
-        title: 'SRM Tech Fest 2026',
-        body: 'Special discounts for students attending the tech fest.',
-        type: NotificationType.info,
-        sentBy: 'Admin (Samuel)',
-        createdAt: DateTime.now().subtract(const Duration(days: 3)),
-        sentCount: 12000,
-        targetName: 'SRM University',
-      ),
-    ];
-  }
-
+class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   void _addNotification(NotificationModel n) {
-    setState(() {
-      _notifications.insert(0, n);
-    });
+    ref.read(notificationRepositoryProvider).addNotification(n);
   }
 
   @override
   Widget build(BuildContext context) {
+    final notificationsAsync = ref.watch(notificationsStreamProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SingleChildScrollView(
+      body: notificationsAsync.when(
+        data: (notifications) {
+          return SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +72,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 spacing: 24,
                 runSpacing: 24,
                 children: [
-                  _buildStatBox('Total Sent', '${_notifications.length}', Icons.notifications_active_rounded, Colors.blue, cardWidth),
+                  _buildStatBox('Total Sent', '${notifications.length}', Icons.notifications_active_rounded, Colors.blue, cardWidth),
                   _buildStatBox('Users Reached', '97.5K+', Icons.people_alt_rounded, Colors.green, cardWidth),
                   _buildStatBox('Colleges Targeted', '2', Icons.apartment_rounded, Colors.purple, cardWidth),
                 ],
@@ -118,15 +84,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: _notifications.length,
+              itemCount: notifications.length,
               separatorBuilder: (context, index) => const SizedBox(height: 12),
-              itemBuilder: (context, index) => _NotificationCard(notification: _notifications[index]),
+              itemBuilder: (context, index) => _NotificationCard(notification: notifications[index]),
             ),
             const SizedBox(height: 50),
           ],
         ),
-      ),
-    );
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (e, s) => Center(child: Text('Error: $e')),
+    ));
   }
 
   Widget _buildStatBox(String title, String value, IconData icon, Color color, double width) {

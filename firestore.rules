@@ -10,22 +10,22 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    // Fetches user record from Firestore
-    function getUserData() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    // Fetches admin record from Firestore (admins collection)
+    function getAdminData() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
     }
 
-    // Checks for specific roles
-    function hasRole(role) {
-      return isSignedIn() && getUserData().role == role;
+    // Checks for specific admin roles
+    function hasAdminRole(role) {
+      return isSignedIn() && getAdminData().role == role;
     }
 
     function isAdmin() {
-      return hasRole('admin') || hasRole('super_admin');
+      return hasAdminRole('admin') || hasAdminRole('super_admin');
     }
 
     function isSuperAdmin() {
-      return hasRole('super_admin');
+      return hasAdminRole('super_admin');
     }
 
     // Checks if the user is the owner of the document
@@ -38,23 +38,23 @@ service cloud.firestore {
     // 1. Users Collection
     match /users/{userId} {
       allow read: if isSignedIn() && (isOwner(userId) || isAdmin());
-      allow create: if isSignedIn(); // Allow initial profile creation
+      allow create: if isSignedIn();
       allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
       allow delete: if isSuperAdmin();
     }
 
     // 2. Orders Collection
     match /orders/{orderId} {
-      allow read: if isSignedIn() && (isOwner(resource.data.userId) || isAdmin());
+      allow read: if isSignedIn();
       allow create: if isSignedIn(); 
-      allow update: if isAdmin(); // In production, add vendor check here
+      allow update: if isSignedIn();
       allow delete: if isSuperAdmin();
     }
 
     // 3. Stores Collection
     match /stores/{storeId} {
-      allow read: if true; // Publicly readable
-      allow create: if isSignedIn(); // For vendor applications
+      allow read: if true;
+      allow create: if isSignedIn();
       allow update: if isAdmin(); 
       allow delete: if isSuperAdmin();
     }
@@ -65,16 +65,52 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    // 5. Service Configs (Highly Sensitive)
-    match /service_configs/{configId} {
-      allow read: if true; // Apps need to know settings
-      allow write: if isSuperAdmin(); // ONLY Super Admin can change commission rates
+    // 5. Vendors Collection
+    match /vendors/{vendorId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null || isAdmin();
+
+      // 5a. Foods Subcollection (vendor menu items)
+      match /foods/{foodId} {
+        allow read: if true;  // Public menu
+        allow create, update, delete: if request.auth.uid == vendorId || isAdmin();
+      }
     }
 
-    // 6. Admin Stats (Internal aggregation)
+    // 6. Admins Collection
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && (isOwner(adminId) || isAdmin());
+      allow write: if isSuperAdmin();
+    }
+
+    // 7. Service Configs (Highly Sensitive)
+    match /service_configs/{configId} {
+      allow read: if true;
+      allow write: if isSuperAdmin();
+    }
+
+    // 8. Admin Stats (Internal aggregation)
     match /admin_stats/{docId} {
       allow read: if isAdmin();
-      allow write: if false; // Only Cloud Functions should write here in production
+      allow write: if false;
+    }
+
+    // 9. Payments Collection
+    match /payments/{paymentId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 10. Sessions Collection
+    match /sessions/{sessionId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // 11. Notifications Collection
+    match /notifications/{notificationId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
   }
 }

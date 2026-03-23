@@ -10,7 +10,14 @@ import 'package:local_services_admin/features/dashboard/data/repositories/dashbo
 class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
   final VoidCallback onMenuPressed;
   final VoidCallback onPendingPressed;
-  const AdminTopBar({super.key, required this.onMenuPressed, required this.onPendingPressed});
+  final VoidCallback onNotificationPressed;
+
+  const AdminTopBar({
+    super.key,
+    required this.onMenuPressed,
+    required this.onPendingPressed,
+    required this.onNotificationPressed,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -100,7 +107,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
               const SizedBox(width: 20),
               
               // Profile Section
-              _buildProfileSection(context, isDark, displayName, roleLabel),
+              _buildProfileSection(context, isDark, displayName, roleLabel, ref),
             ],
           ),
         ],
@@ -133,7 +140,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
     return Stack(
       children: [
         IconButton(
-          onPressed: () {},
+          onPressed: onNotificationPressed,
           icon: Icon(Icons.notifications_none_rounded, color: isDark ? Colors.grey[400] : Colors.blueGrey, size: 22),
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
@@ -192,11 +199,50 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildProfileSection(BuildContext context, bool isDark, String displayName, String roleLabel) {
-    return InkWell(
-      onTap: () {
-        // Handle dropdown
+  Widget _buildProfileSection(BuildContext context, bool isDark, String displayName, String roleLabel, WidgetRef ref) {
+    return PopupMenuButton<String>(
+      offset: const Offset(0, 45),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      onSelected: (value) {
+        if (value == 'logout') {
+          ref.read(authProvider.notifier).logout();
+        } else if (value == 'profile' || value == 'settings') {
+          // Future: Navigate to Profile / Settings
+        }
       },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'profile',
+          child: Row(
+            children: [
+              Icon(Icons.person_outline_rounded, size: 20, color: Colors.blueGrey),
+              SizedBox(width: 12),
+              Text('My Profile'),
+            ],
+          ),
+        ),
+        const PopupMenuItem(
+          value: 'settings',
+          child: Row(
+            children: [
+              Icon(Icons.settings_outlined, size: 20, color: Colors.blueGrey),
+              SizedBox(width: 12),
+              Text('Settings'),
+            ],
+          ),
+        ),
+        const PopupMenuDivider(),
+        const PopupMenuItem(
+          value: 'logout',
+          child: Row(
+            children: [
+              Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+              SizedBox(width: 12),
+              Text('Logout', style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+            ],
+          ),
+        ),
+      ],
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -225,7 +271,7 @@ class AdminTopBar extends ConsumerWidget implements PreferredSizeWidget {
               ),
               Text(
                 roleLabel,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 11,
                   color: Colors.blueGrey,
                   fontWeight: FontWeight.w500,

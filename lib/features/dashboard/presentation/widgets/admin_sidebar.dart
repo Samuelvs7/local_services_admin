@@ -63,6 +63,13 @@ class AdminSidebar extends ConsumerWidget {
                     onTap: () => onItemSelected(2),
                   ),
                   _SidebarItem(
+                    label: 'Vendor Approvals',
+                    icon: Icons.person_add_alt_rounded,
+                    isSelected: selectedIndex == 11,
+                    collapsed: collapsed,
+                    onTap: () => onItemSelected(11),
+                  ),
+                  _SidebarItem(
                     label: 'Marketing Banners',
                     icon: Icons.add_photo_alternate_rounded,
                     isSelected: selectedIndex == 3,

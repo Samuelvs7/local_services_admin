@@ -9,6 +9,7 @@ import 'package:local_services_admin/features/services/presentation/screens/serv
 import 'package:local_services_admin/features/settings/presentation/screens/settings_page.dart';
 import 'package:local_services_admin/features/stores/presentation/screens/stores_page.dart';
 import 'package:local_services_admin/features/users/presentation/screens/users_page.dart';
+import 'package:local_services_admin/features/vendors/presentation/screens/vendors_page.dart';
 import 'package:local_services_admin/features/banners/presentation/screens/banners_page.dart';
 import 'package:local_services_admin/features/announcements/presentation/screens/announcements_page.dart';
 import '../widgets/admin_sidebar.dart';
@@ -62,6 +63,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     _scaffoldKey.currentState?.openDrawer();
                   },
                   onPendingPressed: () => setState(() => _selectedIndex = 2),
+                  onNotificationPressed: () => setState(() => _selectedIndex = 7),
                 ),
                 
                 // Main Content Area
@@ -107,6 +109,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return const SettingsPage();
       case 10:
         return const FinancePage();
+      case 11:
+        return const VendorsPage();
       default:
         return Center(
           child: Column(

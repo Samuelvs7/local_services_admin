@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/services/firebase_service.dart';
 
@@ -19,8 +20,24 @@ class AuthRepository {
   }
 
   Future<Map<String, dynamic>?> getUserData(String uid) async {
-    final doc = await _firebaseService.firestore.collection('users').doc(uid).get();
-    return doc.data();
+    try {
+      print('DEBUG: Attempting to read admins/$uid from SERVER');
+      final doc = await _firebaseService.firestore
+          .collection('admins')
+          .doc(uid)
+          .get(const GetOptions(source: Source.server));
+      print('DEBUG: doc.exists = ${doc.exists}');
+      print('DEBUG: doc.data() = ${doc.data()}');
+      print('DEBUG: doc.id = ${doc.id}');
+      if (!doc.exists) {
+        print('DEBUG: Document does NOT exist in Firestore!');
+        return null;
+      }
+      return doc.data();
+    } catch (e) {
+      print('DEBUG: Error reading admin document: $e');
+      rethrow;
+    }
   }
 
   User? get currentUser => _firebaseService.auth.currentUser;

@@ -103,23 +103,36 @@ class Store {
 
   factory Store.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
+    
+    // Vendor App uses 'isApproved' and 'isActive' instead of 'status' string.
+    StoreStatus mappedStatus = StoreStatus.pending;
+    if (data.containsKey('status')) {
+      mappedStatus = StoreStatus.values.firstWhere(
+        (e) => e.name == data['status'],
+        orElse: () => StoreStatus.pending,
+      );
+    } else {
+       if (data['isApproved'] == true && data['isActive'] != false) {
+         mappedStatus = StoreStatus.approved;
+       } else if (data['isActive'] == false) {
+         mappedStatus = StoreStatus.suspended;
+       }
+    }
+
     return Store(
       id: doc.id,
-      name: data['storeName'] ?? '',
-      ownerName: data['ownerName'] ?? '',
+      name: data['storeName'] ?? data['name'] ?? '',
+      ownerName: data['name'] ?? '',
       email: data['email'] ?? '',
       phone: data['phone'] ?? '',
       collegeId: data['collegeId'] ?? '',
-      collegeName: data['collegeName'] ?? '',
-      ownerId: data['ownerId'] ?? '',
-      serviceType: data['serviceType'] ?? '',
-      status: StoreStatus.values.firstWhere(
-        (e) => e.name == data['status'],
-        orElse: () => StoreStatus.pending,
-      ),
+      collegeName: data['collegeName'] ?? 'No College Data',
+      ownerId: data['ownerId'] ?? doc.id,
+      serviceType: data['serviceType'] ?? data['role'] ?? 'vendor',
+      status: mappedStatus,
       isActive: data['isActive'] ?? false,
       isDeleted: data['isDeleted'] ?? false,
-      address: data['address'] ?? '',
+      address: data['storeAddress'] ?? data['address'] ?? '',
       documents: List<String>.from(data['documents'] ?? []),
       rating: (data['rating'] as num?)?.toDouble(),
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
