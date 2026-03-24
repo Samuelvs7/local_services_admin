@@ -8,10 +8,12 @@ class CollegeService {
   Stream<List<College>> getColleges() {
     return _firestore
         .collection('colleges')
-        .where('isDeleted', isEqualTo: false)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) => College.fromFirestore(doc)).toList();
+      return snapshot.docs
+          .map((doc) => College.fromFirestore(doc))
+          .where((c) => !c.isDeleted)
+          .toList();
     });
   }
 

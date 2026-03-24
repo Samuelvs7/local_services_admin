@@ -22,6 +22,21 @@ class StoreRepository {
             .toList());
   }
 
+  // Get Stores By College
+  Stream<List<Store>> getStoresByCollege(String collegeId) {
+    return _firestore
+        .collection('vendors')
+        .where('collegeId', isEqualTo: collegeId)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .where((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return data['isDeleted'] != true;
+            })
+            .map((doc) => Store.fromFirestore(doc))
+            .toList());
+  }
+
   // Get Pending Stores
   Stream<List<Store>> getPendingStores() {
     return _firestore
@@ -111,4 +126,9 @@ final storesStreamProvider = StreamProvider<List<Store>>((ref) {
 final pendingStoresProvider = StreamProvider<List<Store>>((ref) {
   final repository = ref.watch(storeRepositoryProvider);
   return repository.getPendingStores();
+});
+
+final storesByCollegeProvider = StreamProvider.family<List<Store>, String>((ref, collegeId) {
+  final repository = ref.watch(storeRepositoryProvider);
+  return repository.getStoresByCollege(collegeId);
 });

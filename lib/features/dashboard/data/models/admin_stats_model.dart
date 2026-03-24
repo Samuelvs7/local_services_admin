@@ -13,6 +13,11 @@ class AdminStats {
   final double pendingPayouts;
   final int todayOrders;
   final double todayRevenue;
+  
+  // Chart Data
+  final List<double> last7DaysRevenue;
+  final Map<String, int> ordersByService;
+  final Map<String, double> topCollegesRevenue;
 
   AdminStats({
     required this.totalColleges,
@@ -29,6 +34,9 @@ class AdminStats {
     required this.pendingPayouts,
     required this.todayOrders,
     required this.todayRevenue,
+    required this.last7DaysRevenue,
+    required this.ordersByService,
+    required this.topCollegesRevenue,
   });
 
   factory AdminStats.empty() {
@@ -47,6 +55,9 @@ class AdminStats {
       pendingPayouts: 0.0,
       todayOrders: 0,
       todayRevenue: 0.0,
+      last7DaysRevenue: List.filled(7, 0.0),
+      ordersByService: {},
+      topCollegesRevenue: {},
     );
   }
 }

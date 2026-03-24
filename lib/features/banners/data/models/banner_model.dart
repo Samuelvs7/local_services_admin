@@ -10,6 +10,9 @@ class PromoBanner {
   final int priority;
   final String? collegeId; // Specific college or null for global
   final DateTime createdAt;
+  final String title;
+  final String? subtitle;
+  final String buttonText;
 
   PromoBanner({
     required this.id,
@@ -21,6 +24,9 @@ class PromoBanner {
     this.priority = 0,
     this.collegeId,
     required this.createdAt,
+    this.title = '',
+    this.subtitle,
+    this.buttonText = 'Learn More',
   });
 
   factory PromoBanner.fromFirestore(DocumentSnapshot doc) {
@@ -35,6 +41,9 @@ class PromoBanner {
       priority: data['priority'] ?? 0,
       collegeId: data['collegeId'],
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      title: data['title'] ?? '',
+      subtitle: data['subtitle'],
+      buttonText: data['buttonText'] ?? 'Learn More',
     );
   }
 
@@ -48,6 +57,9 @@ class PromoBanner {
       'priority': priority,
       'collegeId': collegeId,
       'createdAt': createdAt,
+      'title': title,
+      'subtitle': subtitle,
+      'buttonText': buttonText,
     };
   }
 
@@ -59,6 +71,9 @@ class PromoBanner {
     bool? isActive,
     int? priority,
     String? collegeId,
+    String? title,
+    String? subtitle,
+    String? buttonText,
   }) {
     return PromoBanner(
       id: id,
@@ -70,6 +85,9 @@ class PromoBanner {
       priority: priority ?? this.priority,
       collegeId: collegeId ?? this.collegeId,
       createdAt: createdAt,
+      title: title ?? this.title,
+      subtitle: subtitle ?? this.subtitle,
+      buttonText: buttonText ?? this.buttonText,
     );
   }
 }

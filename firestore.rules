@@ -21,7 +21,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return hasAdminRole('admin') || hasAdminRole('super_admin');
+      return hasAdminRole('admin') || hasAdminRole('super_admin') || hasAdminRole('moderator');
     }
 
     function isSuperAdmin() {
@@ -103,13 +103,25 @@ service cloud.firestore {
 
     // 10. Sessions Collection
     match /sessions/{sessionId} {
-      allow read: if isAdmin();
+      allow read: if request.auth != null && (request.auth.token.get('role', '') == 'admin' || isAdmin());
       allow write: if isAdmin();
     }
 
     // 11. Notifications Collection
     match /notifications/{notificationId} {
       allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 12. Global Settings
+    match /settings/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    // 13. Promotional Banners Collection
+    match /banners/{bannerId} {
+      allow read: if request.auth != null;
       allow write: if isAdmin();
     }
   }

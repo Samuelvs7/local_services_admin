@@ -23,6 +23,8 @@ class Store {
   final String address;
   final List<String> documents;
   final double? rating;
+  final int totalOrders;
+  final double totalRevenue;
   
   // Audit fields
   final DateTime createdAt;
@@ -48,6 +50,8 @@ class Store {
     required this.address,
     this.documents = const [],
     this.rating,
+    this.totalOrders = 0,
+    this.totalRevenue = 0.0,
     required this.createdAt,
     this.createdBy,
     this.updatedAt,
@@ -71,6 +75,8 @@ class Store {
     String? address,
     List<String>? documents,
     double? rating,
+    int? totalOrders,
+    double? totalRevenue,
     DateTime? updatedAt,
     DateTime? reviewedAt,
     String? reviewedBy,
@@ -92,6 +98,8 @@ class Store {
       address: address ?? this.address,
       documents: documents ?? this.documents,
       rating: rating ?? this.rating,
+      totalOrders: totalOrders ?? this.totalOrders,
+      totalRevenue: totalRevenue ?? this.totalRevenue,
       createdAt: createdAt,
       createdBy: createdBy,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -135,6 +143,8 @@ class Store {
       address: data['storeAddress'] ?? data['address'] ?? '',
       documents: List<String>.from(data['documents'] ?? []),
       rating: (data['rating'] as num?)?.toDouble(),
+      totalOrders: data['totalOrders'] ?? 0,
+      totalRevenue: (data['totalRevenue'] as num?)?.toDouble() ?? 0.0,
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       createdBy: data['createdBy'],
       updatedAt: (data['updatedAt'] as Timestamp?)?.toDate(),
@@ -160,6 +170,8 @@ class Store {
       'address': address,
       'documents': documents,
       'rating': rating,
+      'totalOrders': totalOrders,
+      'totalRevenue': totalRevenue,
       'createdAt': createdAt,
       'createdBy': createdBy,
       'updatedAt': updatedAt,

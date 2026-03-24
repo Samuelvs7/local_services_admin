@@ -1,49 +1,92 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_services_admin/core/widgets/app_toaster.dart';
+import 'package:local_services_admin/core/widgets/app_toast.dart';
+import 'package:local_services_admin/features/settings/data/models/platform_settings_model.dart';
+import 'package:local_services_admin/features/settings/data/repositories/settings_repository.dart';
 
-class SettingsPage extends StatefulWidget {
+class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
   @override
-  State<SettingsPage> createState() => _SettingsPageState();
+  ConsumerState<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends ConsumerState<SettingsPage> {
   // Platform Info
-  final _nameController = TextEditingController(text: 'NexSus');
-  final _taglineController = TextEditingController(text: 'Hyperlocal Campus Delivery');
-  final _emailController = TextEditingController(text: 'support@nexsus.in');
+  final _nameController = TextEditingController();
+  final _taglineController = TextEditingController();
+  final _emailController = TextEditingController();
 
   // Feature Flags
-  bool _foodDelivery = true;
-  bool _bikeRental = true;
-  bool _parcelDelivery = true;
-  bool _pushNotifications = true;
-  bool _vendorDashboard = true;
-  bool _analytics = true;
+  bool? _foodDelivery;
+  bool? _bikeRental;
+  bool? _parcelDelivery;
+  bool? _pushNotifications;
+  bool? _vendorDashboard;
+  bool? _analytics;
 
   bool _isSaving = false;
+  bool _initialized = false;
 
-  void _handleSave() async {
+  void _handleSave(PlatformSettings currentSettings) async {
     setState(() => _isSaving = true);
     
-    // Simulate network delay
-    await Future.delayed(const Duration(seconds: 1));
-    
-    if (mounted) {
-      setState(() => _isSaving = false);
-      AppToastManager.instance.show(
-        title: 'Settings Saved',
-        description: 'Global platform configurations have been updated.',
-      );
+    final updatedSettings = currentSettings.copyWith(
+      platformName: _nameController.text,
+      tagline: _taglineController.text,
+      supportEmail: _emailController.text,
+      foodDelivery: _foodDelivery,
+      bikeRental: _bikeRental,
+      parcelDelivery: _parcelDelivery,
+      pushNotifications: _pushNotifications,
+      vendorDashboard: _vendorDashboard,
+      analytics: _analytics,
+    );
+
+    try {
+      await ref.read(settingsRepositoryProvider).updateSettings(updatedSettings);
+      if (mounted) {
+        AppToastManager.instance.show(
+          title: 'Settings Saved',
+          description: 'Global platform configurations have been updated.',
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppToastManager.instance.show(
+          title: 'Error Saving Settings',
+          description: e.toString(),
+          variant: AppToastVariant.destructive,
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final settingsAsync = ref.watch(platformSettingsProvider);
+
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: SingleChildScrollView(
+      body: settingsAsync.when(
+        data: (settings) {
+          if (!_initialized) {
+            _nameController.text = settings.platformName;
+            _taglineController.text = settings.tagline;
+            _emailController.text = settings.supportEmail;
+            _foodDelivery ??= settings.foodDelivery;
+            _bikeRental ??= settings.bikeRental;
+            _parcelDelivery ??= settings.parcelDelivery;
+            _pushNotifications ??= settings.pushNotifications;
+            _vendorDashboard ??= settings.vendorDashboard;
+            _analytics ??= settings.analytics;
+            _initialized = true;
+          }
+
+          return SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,37 +127,37 @@ class _SettingsPageState extends State<SettingsPage> {
                    _buildFeatureToggle(
                     'Food Delivery', 
                     'Enable food ordering from campus stores', 
-                    _foodDelivery, 
+                    _foodDelivery ?? settings.foodDelivery, 
                     (v) => setState(() => _foodDelivery = v),
                   ),
                    _buildFeatureToggle(
                     'Bike Rental', 
                     'Enable bike rental service', 
-                    _bikeRental, 
+                    _bikeRental ?? settings.bikeRental, 
                     (v) => setState(() => _bikeRental = v),
                   ),
                    _buildFeatureToggle(
                     'Parcel Delivery', 
                     'Enable inter-campus parcel delivery', 
-                    _parcelDelivery, 
+                    _parcelDelivery ?? settings.parcelDelivery, 
                     (v) => setState(() => _parcelDelivery = v),
                   ),
                    _buildFeatureToggle(
                     'Push Notifications', 
                     'Send push notifications to app users', 
-                    _pushNotifications, 
+                    _pushNotifications ?? settings.pushNotifications, 
                     (v) => setState(() => _pushNotifications = v),
                   ),
                    _buildFeatureToggle(
                     'Vendor Dashboard', 
                     'Allow vendors to access their dashboard', 
-                    _vendorDashboard, 
+                    _vendorDashboard ?? settings.vendorDashboard, 
                     (v) => setState(() => _vendorDashboard = v),
                   ),
                    _buildFeatureToggle(
                     'Analytics Module', 
                     'Enable advanced analytics for admins', 
-                    _analytics, 
+                    _analytics ?? settings.analytics, 
                     (v) => setState(() => _analytics = v),
                   ),
                 ],
@@ -126,7 +169,7 @@ class _SettingsPageState extends State<SettingsPage> {
             Row(
               children: [
                 ElevatedButton.icon(
-                  onPressed: _isSaving ? null : _handleSave,
+                  onPressed: _isSaving ? null : () => _handleSave(settings),
                   icon: _isSaving 
                     ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.save_rounded, size: 18),
@@ -144,8 +187,11 @@ class _SettingsPageState extends State<SettingsPage> {
             const SizedBox(height: 50),
           ],
         ),
-      ),
-    );
+      );
+    },
+    loading: () => const Center(child: CircularProgressIndicator()),
+    error: (e, s) => Center(child: Text('Error loading settings: $e')),
+    ));
   }
 
   Widget _buildSection({required String title, required IconData icon, required Widget child}) {

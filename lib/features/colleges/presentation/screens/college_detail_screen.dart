@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../data/models/college_model.dart';
 import '../../../sessions/presentation/widgets/session_list_widget.dart';
+import '../widgets/college_vendors_tab.dart';
+import '../widgets/college_analytics_tab.dart';
 
 class CollegeDetailScreen extends StatelessWidget {
   final College college;
@@ -10,7 +12,7 @@ class CollegeDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 4,
       child: Scaffold(
         backgroundColor: const Color(0xFFF9F9FA),
         body: NestedScrollView(
@@ -34,7 +36,21 @@ class CollegeDetailScreen extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     if (college.bannerImage.isNotEmpty)
-                      Image.network(college.bannerImage, fit: BoxFit.cover),
+                      Image.network(
+                        college.bannerImage,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                           return Container(
+                             decoration: const BoxDecoration(
+                               gradient: LinearGradient(
+                                 colors: [Color(0xFFFF6B00), Color(0xFFE85D04)],
+                                 begin: Alignment.topLeft,
+                                 end: Alignment.bottomRight,
+                               ),
+                             ),
+                           );
+                        },
+                      ),
                     Container(
                       decoration: const BoxDecoration(
                         gradient: LinearGradient(
@@ -77,6 +93,26 @@ class CollegeDetailScreen extends StatelessWidget {
                         ],
                       ),
                     ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.storefront_rounded, size: 18),
+                          SizedBox(width: 8),
+                          Text('Vendors'),
+                        ],
+                      ),
+                    ),
+                    Tab(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.analytics_rounded, size: 18),
+                          SizedBox(width: 8),
+                          Text('Analytics'),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -86,6 +122,8 @@ class CollegeDetailScreen extends StatelessWidget {
             children: [
               _buildOverviewTab(context),
               SessionListWidget(collegeId: college.id),
+              CollegeVendorsTab(collegeId: college.id),
+              CollegeAnalyticsTab(college: college),
             ],
           ),
         ),
@@ -99,7 +137,7 @@ class CollegeDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatsRow(),
+          _buildStatsRow(context),
           const SizedBox(height: 32),
           _buildInfoCard(context),
         ],
@@ -107,40 +145,51 @@ class CollegeDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
-    return Row(
-      children: [
-        _buildMiniStat('Students', '${college.totalStudents}', Icons.people_rounded, Colors.blue),
-        const SizedBox(width: 16),
-        _buildMiniStat('Stores', '${college.totalStores}', Icons.store_rounded, Colors.green),
-        const SizedBox(width: 16),
-        _buildMiniStat('Orders', '${college.totalOrders}', Icons.shopping_bag_rounded, Colors.orange),
-      ],
-    );
+  Widget _buildStatsRow(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final width = (constraints.maxWidth - 48) / 4;
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          SizedBox(width: width, child: _buildMiniStat('Students', '${college.totalStudents}', Icons.people_rounded, Colors.blue)),
+          SizedBox(width: width, child: _buildMiniStat('Vendors', '${college.totalStores}', Icons.store_rounded, Colors.indigo)),
+          SizedBox(width: width, child: _buildMiniStat('Orders', '${college.totalOrders}', Icons.shopping_bag_rounded, Colors.orange)),
+          SizedBox(width: width, child: _buildMiniStat('Revenue', '₹${college.revenue.toInt()}', Icons.account_balance_wallet_rounded, Colors.green)),
+        ],
+      );
+    });
   }
 
   Widget _buildMiniStat(String label, String value, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha: 0.85), color],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-              child: Icon(icon, color: color, size: 20),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 6)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 12),
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-          ],
-        ),
+            child: Icon(icon, color: Colors.white, size: 22),
+          ),
+          const SizedBox(height: 16),
+          Text(value, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+          const SizedBox(height: 4),
+          Text(label, style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8))),
+        ],
       ),
     );
   }
@@ -151,12 +200,21 @@ class CollegeDetailScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 10)],
+        border: Border.all(color: Colors.grey.withValues(alpha: 0.08)),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Institution Details', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Icon(Icons.info_outline_rounded, size: 20, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Institution Details', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+            ],
+          ),
           const SizedBox(height: 24),
           _detailRow('Full Name', college.name),
           _detailRow('Short Code', college.shortName),

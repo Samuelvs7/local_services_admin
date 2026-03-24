@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../providers/session_provider.dart';
 import 'add_edit_session_dialog.dart';
@@ -90,49 +91,65 @@ class SessionListWidget extends ConsumerWidget {
                   final session = sessions[index];
                   final dateFormat = DateFormat('MMM yyyy');
                   return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey.withValues(alpha: 0.1)),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.grey.withValues(alpha: 0.08)),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 12, offset: const Offset(0, 4)),
+                      ],
                     ),
                     child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       leading: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
                           color: (session.isActive ? Colors.green : Colors.grey).withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.event_available_rounded,
-                          size: 20,
+                          size: 22,
                           color: session.isActive ? Colors.green : Colors.grey,
                         ),
                       ),
                       title: Row(
                         children: [
-                          Text(session.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Flexible(child: Text(session.name, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15))),
                           if (session.isActive)
                             Container(
                               margin: const EdgeInsets.only(left: 12),
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
                               decoration: BoxDecoration(
                                 color: Colors.green.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
+                                borderRadius: BorderRadius.circular(20),
                               ),
                               child: const Text(
                                 'ACTIVE',
-                                style: TextStyle(color: Colors.green, fontSize: 9, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                                style: TextStyle(color: Colors.green, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                              ),
+                            )
+                          else
+                            Container(
+                              margin: const EdgeInsets.only(left: 12),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                'COMPLETED',
+                                style: TextStyle(color: Colors.grey[600], fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 0.5),
                               ),
                             ),
                         ],
                       ),
                       subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 4),
+                        padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           '${dateFormat.format(session.startDate)} — ${dateFormat.format(session.endDate)}',
-                          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                         ),
                       ),
                       trailing: Row(
@@ -163,8 +180,43 @@ class SessionListWidget extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (err, stack) => Center(child: Text('Error: $err')),
+      loading: () => ListView.builder(
+        padding: const EdgeInsets.all(24),
+        itemCount: 3,
+        itemBuilder: (_, __) => Shimmer.fromColors(
+          baseColor: Colors.grey[200]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 80,
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+        ),
+      ),
+      error: (err, stack) => Center(
+        child: Container(
+          margin: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.05),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.1)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.error_outline_rounded, color: Colors.red[300], size: 48),
+              const SizedBox(height: 16),
+              const Text('Failed to load sessions', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              const SizedBox(height: 8),
+              Text(err.toString(), textAlign: TextAlign.center, style: TextStyle(color: Colors.grey[600], fontSize: 13)),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -6,6 +6,7 @@ import 'package:local_services_admin/features/dashboard/presentation/providers/d
 import 'package:local_services_admin/features/dashboard/presentation/widgets/dashboard_stats_card.dart';
 import 'package:local_services_admin/features/dashboard/presentation/widgets/recent_orders_table.dart';
 import 'package:local_services_admin/features/stores/presentation/providers/store_provider.dart';
+import 'package:local_services_admin/features/dashboard/data/models/admin_stats_model.dart';
 
 class DashboardPage extends ConsumerWidget {
   final Function(int) onNavigate;
@@ -72,28 +73,28 @@ class DashboardPage extends ConsumerWidget {
                 
                 // 3. Secondary Stats Grid
                 _buildSecondaryStatsGrid(stats),
+
+                const SizedBox(height: 32),
+
+                // 4. Charts Row
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 2, child: _buildTrendChart(context, stats)),
+                    const SizedBox(width: 24),
+                    Expanded(flex: 1, child: _buildServiceDistribution(context, stats)),
+                  ],
+                ),
+
+                const SizedBox(height: 32),
+
+                // 5. College Revenue Bar Chart
+                _buildCollegeRevenueChart(context, stats),
               ],
             ),
             loading: () => const Center(child: CircularProgressIndicator()),
             error: (e, s) => Text('Error: $e'),
           ),
-
-          const SizedBox(height: 32),
-
-          // 4. Charts Row
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 2, child: _buildTrendChart(context)),
-              const SizedBox(width: 24),
-              Expanded(flex: 1, child: _buildServiceDistribution(context)),
-            ],
-          ),
-
-          const SizedBox(height: 32),
-
-          // 5. College Revenue Bar Chart
-          _buildCollegeRevenueChart(context),
 
           const SizedBox(height: 32),
 
@@ -230,7 +231,19 @@ class DashboardPage extends ConsumerWidget {
     });
   }
 
-  Widget _buildTrendChart(BuildContext context) {
+  Widget _buildTrendChart(BuildContext context, AdminStats stats) {
+    // Generate trend spots from last7DaysRevenue. Index 0 is 6 days ago, index 6 is today.
+    final spots = List.generate(7, (i) {
+      return FlSpot(i.toDouble(), stats.last7DaysRevenue[i] > 0 ? stats.last7DaysRevenue[i] : 0);
+    });
+    
+    double maxY = 0;
+    for (var val in stats.last7DaysRevenue) {
+      if (val > maxY) maxY = val;
+    }
+    // Give some headroom to maxY
+    maxY = maxY > 0 ? maxY * 1.2 : 10;
+
     return Container(
       height: 350,
       padding: const EdgeInsets.all(24),
@@ -250,23 +263,43 @@ class DashboardPage extends ConsumerWidget {
           Expanded(
             child: LineChart(
               LineChartData(
+                minY: 0,
+                maxY: maxY,
                 gridData: const FlGridData(show: true, drawVerticalLine: false),
-                titlesData: const FlTitlesData(
-                  rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                titlesData: FlTitlesData(
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (val, meta) {
+                        if (val < 0 || val > 6) return const Text('');
+                        final daysAgo = 6 - val.toInt();
+                        if (daysAgo == 0) return const Text('Today', style: TextStyle(fontSize: 10));
+                        return Text('${daysAgo}d', style: const TextStyle(fontSize: 10));
+                      },
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (val, meta) {
+                        if (val == 0) return const Text('');
+                        return Text(_formatCurrency(val), style: const TextStyle(fontSize: 10));
+                      },
+                    ),
+                  ),
                 ),
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: const [
-                      FlSpot(0, 3), FlSpot(1, 4), FlSpot(2, 3.5), FlSpot(3, 5),
-                      FlSpot(4, 4), FlSpot(5, 6), FlSpot(6, 5),
-                    ],
+                    spots: spots,
                     isCurved: true,
                     color: Theme.of(context).colorScheme.primary,
                     barWidth: 3,
                     isStrokeCapRound: true,
-                    dotData: const FlDotData(show: false),
+                    dotData: const FlDotData(show: true),
                     belowBarData: BarAreaData(
                       show: true,
                       color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
@@ -281,7 +314,46 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildServiceDistribution(BuildContext context) {
+  Widget _buildServiceDistribution(BuildContext context, AdminStats stats) {
+    final totalOrders = stats.ordersByService.values.fold(0, (sum, val) => sum + val);
+
+    final colors = [
+      Theme.of(context).colorScheme.primary,
+      Colors.blue.shade400,
+      Colors.purple.shade400,
+      Colors.orange.shade400,
+      Colors.teal.shade400,
+    ];
+
+    List<PieChartSectionData> sections = [];
+    List<Widget> legends = [];
+
+    int i = 0;
+    stats.ordersByService.forEach((service, count) {
+      if (count > 0 && totalOrders > 0) {
+        final percentage = (count / totalOrders) * 100;
+        final color = colors[i % colors.length];
+
+        sections.add(
+          PieChartSectionData(
+            color: color, 
+            value: percentage, 
+            title: service.length > 6 ? '${service.substring(0, 5)}.' : service, 
+            radius: 50, 
+            titleStyle: const TextStyle(fontSize: 10, color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+        );
+
+        legends.add(_buildLegend(service, color, '${percentage.toStringAsFixed(1)}%'));
+        i++;
+      }
+    });
+
+    if (sections.isEmpty) {
+      sections.add(PieChartSectionData(color: Colors.grey.shade300, value: 100, title: 'No Data', radius: 50));
+      legends.add(_buildLegend('No Orders', Colors.grey.shade300, '0%'));
+    }
+
     return Container(
       height: 350,
       padding: const EdgeInsets.all(24),
@@ -303,36 +375,12 @@ class DashboardPage extends ConsumerWidget {
               PieChartData(
                 sectionsSpace: 0,
                 centerSpaceRadius: 40,
-                sections: [
-                  PieChartSectionData(
-                    color: Theme.of(context).colorScheme.primary, 
-                    value: 40, 
-                    title: 'Food', 
-                    radius: 50, 
-                    titleStyle: const TextStyle(fontSize: 10, color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    color: Colors.blue.shade400, 
-                    value: 30, 
-                    title: 'Bike', 
-                    radius: 50, 
-                    titleStyle: const TextStyle(fontSize: 10, color: Colors.white),
-                  ),
-                  PieChartSectionData(
-                    color: Colors.purple.shade400, 
-                    value: 30, 
-                    title: 'Parcel', 
-                    radius: 50, 
-                    titleStyle: const TextStyle(fontSize: 10, color: Colors.white),
-                  ),
-                ],
+                sections: sections,
               ),
             ),
           ),
           const SizedBox(height: 20),
-          _buildLegend('Food', Theme.of(context).colorScheme.primary, '40%'),
-          _buildLegend('Bike', Colors.blue, '30%'),
-          _buildLegend('Parcel', Colors.purple, '30%'),
+          ...legends,
         ],
       ),
     );
@@ -357,7 +405,28 @@ class DashboardPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCollegeRevenueChart(BuildContext context) {
+  Widget _buildCollegeRevenueChart(BuildContext context, AdminStats stats) {
+    List<BarChartGroupData> barGroups = [];
+    int i = 0;
+    double maxY = 0;
+    
+    stats.topCollegesRevenue.forEach((collegeName, revenue) {
+      if (revenue > maxY) maxY = revenue;
+      barGroups.add(
+        BarChartGroupData(
+          x: i,
+          barRods: [BarChartRodData(toY: revenue, color: Theme.of(context).colorScheme.primary, width: 20, borderRadius: BorderRadius.circular(4))],
+        ),
+      );
+      i++;
+    });
+
+    if (barGroups.isEmpty) {
+       barGroups.add(BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 0, color: Colors.blue, width: 20)]));
+    }
+    
+    maxY = maxY > 0 ? maxY * 1.2 : 10;
+
     return Container(
       height: 300,
       padding: const EdgeInsets.all(24),
@@ -372,19 +441,47 @@ class DashboardPage extends ConsumerWidget {
         children: [
           const Text('Revenue by College', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
           const SizedBox(height: 4),
-          const Text('Platform earnings per institution', style: TextStyle(color: Colors.grey, fontSize: 12)),
+          const Text('Platform earnings per institution (Top 4)', style: TextStyle(color: Colors.grey, fontSize: 12)),
           const SizedBox(height: 24),
           Expanded(
             child: BarChart(
               BarChartData(
-                barGroups: [
-                  BarChartGroupData(x: 0, barRods: [BarChartRodData(toY: 8, color: Colors.blue, width: 20)]),
-                  BarChartGroupData(x: 1, barRods: [BarChartRodData(toY: 10, color: Colors.blue, width: 20)]),
-                  BarChartGroupData(x: 2, barRods: [BarChartRodData(toY: 7, color: Colors.blue, width: 20)]),
-                  BarChartGroupData(x: 3, barRods: [BarChartRodData(toY: 12, color: Colors.blue, width: 20)]),
-                ],
+                minY: 0,
+                maxY: maxY,
+                barGroups: barGroups,
                 borderData: FlBorderData(show: false),
-                gridData: const FlGridData(show: false),
+                gridData: const FlGridData(show: true, drawVerticalLine: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (val, meta) {
+                        if (val == 0) return const Text('');
+                        return Text(_formatCurrency(val), style: const TextStyle(fontSize: 10));
+                      },
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (val, meta) {
+                        int index = val.toInt();
+                        if (index >= 0 && index < stats.topCollegesRevenue.length) {
+                          String name = stats.topCollegesRevenue.keys.elementAt(index);
+                          if (name.length > 20) name = '${name.substring(0, 18)}...';
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(name, style: const TextStyle(fontSize: 10)),
+                          );
+                        }
+                        return const Text('');
+                      },
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
